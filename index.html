@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ContractorAI — Select Your Trade</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --dark:#0F172A;--card:#1E293B;--border:#334155;
+    --gold:#C17F3A;--gold2:#E8A040;
+    --light:#94A3B8;--mid:#64748B;--cream:#F8FAFC
+  }
+  body{font-family:'DM Sans',sans-serif;background:var(--dark);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+
+  .logo{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--gold2);letter-spacing:3px;text-align:center;margin-bottom:4px}
+  .tagline{font-size:13px;color:var(--light);text-align:center;margin-bottom:40px}
+
+  .cards{display:flex;flex-direction:column;gap:14px;width:100%;max-width:420px}
+
+  .trade-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:16px;transition:border-color .2s,transform .15s}
+  .trade-card:active{transform:scale(.98)}
+  .trade-card:hover{border-color:var(--gold)}
+
+  .trade-icon{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+  .icon-mason{background:#3D1A12}
+  .icon-commercial{background:#0F2340}
+  .icon-residential{background:#0F2D1A}
+
+  .trade-info{flex:1}
+  .trade-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:var(--cream);line-height:1}
+  .trade-desc{font-size:12px;color:var(--light);margin-top:4px;line-height:1.5}
+  .trade-jobs{font-size:10px;color:var(--mid);margin-top:6px}
+
+  .arrow{font-size:20px;color:var(--gold);flex-shrink:0}
+
+  .divider{display:flex;align-items:center;gap:10px;margin:8px 0}
+  .divider-line{flex:1;height:1px;background:var(--border)}
+  .divider-text{font-size:11px;color:var(--mid)}
+
+  .footer{margin-top:32px;text-align:center;font-size:11px;color:var(--mid)}
+  .footer span{color:var(--gold)}
+</style>
+</head>
+<body>
+
+<div class="logo">CONTRACTORAI</div>
+<div class="tagline">AI-powered estimates — enter your real prices, get professional bids in minutes</div>
+
+<div class="cards">
+
+  <a href="mason.html" class="trade-card">
+    <div class="trade-icon icon-mason">🧱</div>
+    <div class="trade-info">
+      <div class="trade-name">Mason Estimator</div>
+      <div class="trade-desc">Patios, retaining walls, walkways, stone veneer, chimneys, and more</div>
+      <div class="trade-jobs">Brick Patio · Retaining Wall · Stone Veneer · Chimney · Bluestone</div>
+    </div>
+    <div class="arrow">→</div>
+  </a>
+
+  <a href="commercial.html" class="trade-card">
+    <div class="trade-icon icon-commercial">🏢</div>
+    <div class="trade-info">
+      <div class="trade-name">Commercial Estimator</div>
+      <div class="trade-desc">Office renovations, tenant fit-outs, retail buildouts, restaurants, medical offices</div>
+      <div class="trade-jobs">Tenant Fit-Out · Retail · Restaurant · Medical · Warehouse</div>
+    </div>
+    <div class="arrow">→</div>
+  </a>
+
+  <a href="residential.html" class="trade-card">
+    <div class="trade-icon icon-residential">🏠</div>
+    <div class="trade-info">
+      <div class="trade-name">Residential Estimator</div>
+      <div class="trade-desc">Kitchen and bath remodels, additions, roofing, siding, and full renovations</div>
+      <div class="trade-jobs">Kitchen · Bathroom · Basement · Addition · Roofing · Siding</div>
+    </div>
+    <div class="arrow">→</div>
+  </a>
+
+</div>
+
+<div class="footer">
+  Prices saved automatically · Estimates emailed instantly · Built for <span>NJ contractors</span>
+</div>
+
+</body>
+</html>
