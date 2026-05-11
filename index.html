@@ -131,14 +131,14 @@
         <option value="Stoop Repair">Stoop Repair</option>
       </select>
     </div>
-    <div class="field">
+<div class="field">
       <label>Location</label>
       <div style="position:relative">
         <input id="location" placeholder="Start typing a town..." autocomplete="off"
-          oninput="filterTowns(this.value)" onfocus="filterTowns(this.value)" onblur="setTimeout(hideTowns,300)">
-        <div id="townDropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1.5px solid var(--gold);border-top:none;border-radius:0 0 10px 10px;max-height:200px;overflow-y:auto;z-index:200;box-shadow:0 4px 12px rgba(0,0,0,.1)"></div>
+          oninput="filterTowns(this.value)" onfocus="filterTowns(this.value)" onblur="setTimeout(hideTowns,400)">
+        <div id="townDropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1.5px solid #C17F3A;border-top:none;border-radius:0 0 10px 10px;max-height:200px;overflow-y:auto;z-index:999"></div>
       </div>
-    </div>
+    </div>>
     <div class="row2">
       <div class="field"><label>Length (ft)</label><input type="number" id="dimL" placeholder="24" min="1"></div>
       <div class="field"><label>Width (ft)</label><input type="number" id="dimW" placeholder="16" min="1"></div>
