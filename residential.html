@@ -736,11 +736,11 @@ function renderEstimate(d) {
     <div class="risks-section"><div class="risks-label">Risk Flags</div>${risksHTML}</div>
     <div class="est-notes">📋 ${d.notes}</div>
     <div style="display:flex;gap:8px;margin-top:14px">
-      <a href="index.html" class="btn btn-secondary" style="flex:1;text-align:center;text-decoration:none;line-height:3">🏠 Home</a>
       <button class="btn btn-secondary" onclick="goStep(1)" style="flex:1">← Edit</button>
       <button class="btn btn-primary" onclick="goStep(3);renderSchedule()" style="flex:2">Schedule →</button>
     </div>
-    <button id="emailBtn" class="btn btn-dark" onclick="sendEstimateEmail()" style="margin-top:10px">📧 Email This Estimate</button>`;
+    <button id="emailBtn" class="btn btn-dark" onclick="sendEstimateEmail()" style="margin-top:10px">📧 Email This Estimate</button>
+    <a href="index.html" class="btn btn-primary" style="margin-top:10px;background:#166534;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;padding:14px">✓ Done — Back to Home</a>
   // Auto-save to Airtable
   saveToAirtable(d).catch(e => console.warn('Airtable save failed:', e));
 }
