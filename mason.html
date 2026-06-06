@@ -523,8 +523,6 @@ function renderEstimate(d) {
     </div>
     <button id="emailBtn" class="btn btn-dark" onclick="sendEstimateEmail()" style="margin-top:10px">📧 Email This Estimate</button>
     <a href="index.html" class="btn" style="margin-top:10px;background:#166534;color:white;text-align:center;text-decoration:none;display:block;padding:14px;border-radius:12px;font-weight:700">✓ Done — Back to Home</a>`;
-    <a href="index.html" class="btn btn-primary" style="margin-top:10px;background:#166534;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;padding:14px">✓ Done — Back to Home</a>
-
   saveToAirtable(d).catch(e => console.warn('Airtable save failed:', e));
 }
 
