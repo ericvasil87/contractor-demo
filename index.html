@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#1E40AF">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="ContractorAI">
+<link rel="manifest" href="manifest.json">
+<title>ContractorAI</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --blue:#1E40AF;--blue2:#2563EB;--blue3:#DBEAFE;--blue4:#EFF6FF;
+    --gray:#F8FAFC;--gray2:#F1F5F9;--gray3:#E2E8F0;
+    --text:#0F172A;--text2:#475569;--text3:#94A3B8;
+    --green:#166534;--green2:#DCFCE7;
+    --red:#7F1D1D;--redbg:#FEE2E2;
+    --yellow:#78350F;--ybg:#FEF3C7;
+    --border:#E2E8F0;--white:#fff;
+    --mason:#92400E;--mason2:#FEF3C7;
+    --comm:#1E3A5F;--comm2:#DBEAFE;
+    --res:#166534;--res2:#DCFCE7;
+  }
+  body{font-family:'DM Sans',sans-serif;background:var(--gray);color:var(--text);min-height:100vh;min-height:-webkit-fill-available;display:flex;flex-direction:column}
+  .app-bar{background:var(--white);border-bottom:1px solid var(--border);padding:0}
+  .app-bar-top{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 0}
+  .logo{font-size:18px;font-weight:700;color:var(--blue);letter-spacing:.3px}
+  .logo span{color:var(--text3);font-weight:400}
+  .tab-row{display:flex;border-top:1px solid var(--border);margin-top:12px}
+  .tab{flex:1;padding:10px 0;font-size:13px;font-weight:500;color:var(--text3);background:transparent;border:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;font-family:'DM Sans',sans-serif}
+  .tab.active{color:var(--blue2);border-bottom-color:var(--blue2)}
+  .panel{display:none;flex:1;overflow-y:auto;padding:20px}.panel.active{display:block}
+  .tagline{font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.5}
+  .section-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin-bottom:10px}
+  .cards{display:flex;flex-direction:column;gap:10px}
+  .trade-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:14px;transition:border-color .2s,box-shadow .2s;-webkit-tap-highlight-color:transparent;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .trade-card:active{transform:scale(.99)}
+  .trade-card:hover{border-color:var(--blue3);box-shadow:0 2px 8px rgba(37,99,235,.1)}
+  .trade-icon{width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+  .icon-mason{background:var(--mason2)}
+  .icon-commercial{background:var(--comm2)}
+  .icon-residential{background:var(--res2)}
+  .trade-info{flex:1}
+  .trade-name{font-size:15px;font-weight:600;color:var(--text);line-height:1.2}
+  .trade-desc{font-size:12px;color:var(--text2);margin-top:3px;line-height:1.4}
+  .trade-jobs{font-size:11px;color:var(--text3);margin-top:4px}
+  .arrow{font-size:16px;color:var(--text3);flex-shrink:0}
+  /* History */
+  .history-filter{display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+  .history-filter::-webkit-scrollbar{display:none}
+  .filter-btn{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid var(--border);color:var(--text2);background:var(--white);cursor:pointer;white-space:nowrap;transition:all .2s;font-family:'DM Sans',sans-serif}
+  .filter-btn.active{background:var(--blue2);color:#fff;border-color:var(--blue2)}
+  .job-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px;cursor:pointer;transition:border-color .15s,box-shadow .15s;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .job-card:hover{border-color:var(--blue3);box-shadow:0 2px 8px rgba(37,99,235,.1)}
+  .job-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+  .job-client{font-size:14px;font-weight:600;color:var(--text)}
+  .job-total{font-size:16px;font-weight:700;color:var(--blue2)}
+  .job-meta{font-size:11px;color:var(--text3);margin-bottom:8px}
+  .job-badges{display:flex;gap:5px;flex-wrap:wrap}
+  .badge{font-size:10px;font-weight:500;padding:3px 8px;border-radius:10px}
+  .badge-green{background:var(--green2);color:var(--green)}
+  .badge-yellow{background:var(--ybg);color:var(--yellow)}
+  .badge-red{background:var(--redbg);color:var(--red)}
+  .badge-blue{background:var(--blue3);color:var(--blue)}
+  .badge-amber{background:#FEF3C7;color:#92400E}
+  .badge-gray{background:var(--gray2);color:var(--text2)}
+  .badge-purple{background:#EDE9FE;color:#5B21B6}
+  .badge-orange{background:#FFEDD5;color:#C2410C}
+  .status-pill{font-size:10px;font-weight:600;padding:3px 8px;border-radius:10px}
+  .status-Quoted{background:var(--blue3);color:var(--blue)}
+  .status-Accepted{background:var(--ybg);color:var(--yellow)}
+  .status-In-Progress{background:#FFEDD5;color:#C2410C}
+  .status-Complete{background:var(--green2);color:var(--green)}
+  .history-empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:14px}
+  .history-empty span{display:block;font-size:32px;margin-bottom:12px}
+  .loading-hist{text-align:center;padding:40px;color:var(--text3);font-size:13px}
+  /* Summary grid */
+  .summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+  .sum-box{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .sum-val{font-size:20px;font-weight:700;color:var(--blue2);line-height:1}
+  .sum-lbl{font-size:10px;color:var(--text3);margin-top:3px}
+  /* Trade section header */
+  .trade-section-hdr{display:flex;align-items:center;justify-content:space-between;border-radius:10px;padding:10px 14px;margin-bottom:8px}
+  .trade-section-hdr .th-left{display:flex;align-items:center;gap:8px}
+  .trade-section-hdr .th-name{font-size:14px;font-weight:600}
+  .trade-section-hdr .th-stats{font-size:11px;margin-top:1px}
+  .hdr-mason{background:var(--mason2)}.hdr-mason .th-name{color:var(--mason)}.hdr-mason .th-stats{color:#B45309}
+  .hdr-comm{background:var(--comm2)}.hdr-comm .th-name{color:var(--comm)}.hdr-comm .th-stats{color:#1E40AF}
+  .hdr-res{background:var(--res2)}.hdr-res .th-name{color:var(--res)}.hdr-res .th-stats{color:#166534}
+  /* Modal */
+  .modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:1000;overflow-y:auto;padding:16px;-webkit-overflow-scrolling:touch}
+  .modal.open{display:flex;align-items:flex-start;justify-content:center}
+  .modal-inner{background:var(--white);border-radius:16px;max-width:500px;margin:0 auto;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.15)}
+  .modal-header{background:var(--blue);padding:16px;display:flex;justify-content:space-between;align-items:center}
+  .modal-title{font-size:15px;font-weight:600;color:#fff}
+  .modal-close{background:transparent;border:none;color:#BFDBFE;font-size:22px;cursor:pointer;line-height:1}
+  .modal-body{padding:16px}
+  .modal-section{margin-bottom:14px}
+  .modal-section-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--text3);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+  .modal-row{display:flex;justify-content:space-between;font-size:13px;color:var(--text2);margin-bottom:5px}
+  .modal-row strong{color:var(--text)}
+  .modal-text{font-size:12px;color:var(--text2);line-height:1.6;white-space:pre-wrap}
+  .status-selector{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px}
+  .status-opt{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:2px solid transparent;font-family:'DM Sans',sans-serif;transition:all .15s}
+  .status-opt.active{border-color:var(--text)}
+  .status-opt-Quoted{background:var(--blue3);color:var(--blue)}
+  .status-opt-Accepted{background:var(--ybg);color:var(--yellow)}
+  .status-opt-In-Progress{background:#FFEDD5;color:#C2410C}
+  .status-opt-Complete{background:var(--green2);color:var(--green)}
+  .modal-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+  .modal-btn{flex:1;min-width:80px;padding:10px;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;text-align:center}
+  .modal-btn-primary{background:var(--blue2);color:white}
+  .modal-btn-danger{background:var(--redbg);color:var(--red);border:1px solid #FECACA}
+  .modal-btn-secondary{background:var(--gray2);color:var(--text2)}
+  .modal-btn-green{background:var(--green2);color:var(--green)}
+  /* Change order */
+  .co-line{background:var(--gray2);border-radius:8px;padding:10px;margin-bottom:8px}
+  .co-input{font-size:13px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--white);color:var(--text);font-family:'DM Sans',sans-serif;width:100%}
+  .co-remove{background:var(--redbg);border:none;border-radius:6px;color:var(--red);font-size:14px;width:28px;height:28px;cursor:pointer;font-weight:700;flex-shrink:0}
+  .co-total-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--border);margin-top:8px}
+  .co-diff{font-size:14px;font-weight:700}
+  .co-diff.up{color:#EF4444}.co-diff.down{color:var(--green)}
+</style>
+</head>
+<body>
+
+<div class="app-bar">
+  <div class="app-bar-top">
+    <div class="logo">Contractor<span>AI</span></div>
+  </div>
+  <div class="tab-row">
+    <button class="tab active" onclick="showTab('home',this)">Estimators</button>
+    <button class="tab" onclick="showTab('history',this);loadHistory()">Job History</button>
+  </div>
+</div>
+
+<!-- HOME TAB -->
+<div class="panel active" id="tab-home">
+  <p class="tagline">Professional AI-powered estimates for NJ contractors. Enter your real prices and generate accurate bids in minutes.</p>
+  <div class="section-label">Select your trade</div>
+  <div class="cards">
+    <a href="mason.html" class="trade-card">
+      <div class="trade-icon icon-mason">&#129521;</div>
+      <div class="trade-info">
+        <div class="trade-name">Mason Estimator</div>
+        <div class="trade-desc">Patios, retaining walls, walkways, stone veneer, chimneys</div>
+        <div class="trade-jobs">Brick Patio &middot; Retaining Wall &middot; Stone Veneer &middot; Chimney</div>
+      </div>
+      <div class="arrow">&#8250;</div>
+    </a>
+    <a href="commercial.html" class="trade-card">
+      <div class="trade-icon icon-commercial">&#127970;</div>
+      <div class="trade-info">
+        <div class="trade-name">Commercial Estimator</div>
+        <div class="trade-desc">Office renovations, tenant fit-outs, retail buildouts, restaurants</div>
+        <div class="trade-jobs">Tenant Fit-Out &middot; Retail &middot; Restaurant &middot; Medical</div>
+      </div>
+      <div class="arrow">&#8250;</div>
+    </a>
+    <a href="residential.html" class="trade-card">
+      <div class="trade-icon icon-residential">&#127968;</div>
+      <div class="trade-info">
+        <div class="trade-name">Residential Estimator</div>
+        <div class="trade-desc">Kitchen and bath remodels, additions, roofing, siding, renovations</div>
+        <div class="trade-jobs">Kitchen &middot; Bathroom &middot; Basement &middot; Addition &middot; Roofing</div>
+      </div>
+      <div class="arrow">&#8250;</div>
+    </a>
+  </div>
+</div>
+
+<!-- HISTORY TAB -->
+<div class="panel" id="tab-history">
+  <div class="history-filter">
+    <button class="filter-btn active" onclick="filterHistory('all',this)">All Jobs</button>
+    <button class="filter-btn" onclick="filterHistory('Mason',this)">Mason</button>
+    <button class="filter-btn" onclick="filterHistory('Commercial',this)">Commercial</button>
+    <button class="filter-btn" onclick="filterHistory('Residential',this)">Residential</button>
+  </div>
+  <div id="historyList"><div class="loading-hist">Loading jobs...</div></div>
+</div>
+
+<!-- JOB DETAIL MODAL -->
+<div class="modal" id="jobModal">
+  <div class="modal-inner">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Job Detail</div>
+      <button class="modal-close" onclick="closeModal()">&#215;</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- CHANGE ORDER MODAL -->
+<div class="modal" id="coModal">
+  <div class="modal-inner">
+    <div class="modal-header">
+      <div class="modal-title" id="coTitle">Change Order</div>
+      <button class="modal-close" onclick="closeCO()">&#215;</button>
+    </div>
+    <div class="modal-body" id="coBody"></div>
+  </div>
+</div>
+
+<script>
+const WORKER='https://mason-demo.eric-vasil87.workers.dev/';
+const EMAILJS_SERVICE='service_kkunlci',EMAILJS_TEMPLATE='template_peuxd9o',EMAILJS_KEY='AUPTTqhNHEKbexylj';
+window.addEventListener('load',()=>emailjs.init(EMAILJS_KEY));
+let allJobs=[],currentFilter='all',currentJob=null,coLines=[];
+const STATUSES=['Quoted','Accepted','In Progress','Complete'];
+
+function showTab(name,el){
+  document.getElementById('tab-home').classList.remove('active');
+  document.getElementById('tab-history').classList.remove('active');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if(el)el.classList.add('active');
+}
+
+async function loadHistory(){
+  const list=document.getElementById('historyList');
+  list.innerHTML='<div class="loading-hist">Loading your jobs...</div>';
+  try{
+    const resp=await fetch(WORKER,{method:'POST',headers:{'Content-Type':'application/json','X-Action':'get-estimates'},body:JSON.stringify({trade:currentFilter==='all'?'':currentFilter})});
+    const data=await resp.json();
+    allJobs=(data.records||[]).map(r=>({id:r.id,...r.fields}));
+    renderHistory(allJobs);
+  }catch(e){list.innerHTML='<div class="history-empty"><span>&#9888;&#65039;</span>Could not load jobs.</div>'}
+}
+
+function filterHistory(trade,btn){
+  currentFilter=trade;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  loadHistory();
+}
+
+function renderHistory(jobs){
+  const list=document.getElementById('historyList');
+  if(!jobs.length){list.innerHTML='<div class="history-empty"><span>&#128203;</span>No estimates yet.<br>Generate an estimate to see it here.</div>';return}
+  const totalRev=jobs.reduce((s,j)=>s+(j.Total||0),0);
+  const avgMargin=(jobs.reduce((s,j)=>s+(j['Margin %']||0),0)/jobs.length).toFixed(1);
+  const totalProfit=jobs.reduce((s,j)=>s+(j.Profit||0),0);
+
+  if(currentFilter!=='all'){
+    list.innerHTML=`<div class="summary-grid"><div class="sum-box"><div class="sum-val">${jobs.length}</div><div class="sum-lbl">Jobs</div></div><div class="sum-box"><div class="sum-val">$${Math.round(totalRev/1000)}k</div><div class="sum-lbl">Revenue</div></div><div class="sum-box"><div class="sum-val">${avgMargin}%</div><div class="sum-lbl">Avg Margin</div></div><div class="sum-box"><div class="sum-val">$${Math.round(totalProfit/1000)}k</div><div class="sum-lbl">Profit</div></div></div>${jobs.map(j=>jobCard(j)).join('')}`;
+    return;
+  }
+
+  const trades=[
+    {key:'Mason',icon:'&#129521;',cls:'hdr-mason',label:'Mason'},
+    {key:'Commercial',icon:'&#127970;',cls:'hdr-comm',label:'Commercial'},
+    {key:'Residential',icon:'&#127968;',cls:'hdr-res',label:'Residential'},
+  ];
+
+  let html=`<div class="summary-grid"><div class="sum-box"><div class="sum-val">${jobs.length}</div><div class="sum-lbl">Total Jobs</div></div><div class="sum-box"><div class="sum-val">$${Math.round(totalRev/1000)}k</div><div class="sum-lbl">Revenue</div></div><div class="sum-box"><div class="sum-val">${avgMargin}%</div><div class="sum-lbl">Avg Margin</div></div><div class="sum-box"><div class="sum-val">$${Math.round(totalProfit/1000)}k</div><div class="sum-lbl">Profit</div></div></div>`;
+
+  trades.forEach(t=>{
+    const tJobs=jobs.filter(j=>j.Trade===t.key);
+    if(!tJobs.length)return;
+    const tRev=tJobs.reduce((s,j)=>s+(j.Total||0),0);
+    const tProfit=tJobs.reduce((s,j)=>s+(j.Profit||0),0);
+    html+=`<div style="margin-top:16px"><div class="trade-section-hdr ${t.cls}"><div class="th-left"><span style="font-size:18px">${t.icon}</span><div><div class="th-name">${t.label}</div><div class="th-stats">${tJobs.length} job${tJobs.length!==1?'s':''} &middot; $${Math.round(tRev/1000)}k revenue &middot; $${Math.round(tProfit/1000)}k profit</div></div></div></div>${tJobs.map(j=>jobCard(j)).join('')}</div>`;
+  });
+  const unknown=jobs.filter(j=>!['Mason','Commercial','Residential'].includes(j.Trade));
+  if(unknown.length)html+=`<div style="margin-top:16px"><div style="background:var(--gray2);border-radius:10px;padding:10px 14px;margin-bottom:8px;font-size:13px;color:var(--text2);font-weight:600">Other Jobs</div>${unknown.map(j=>jobCard(j)).join('')}</div>`;
+  list.innerHTML=html;
+}
+
+function statusClass(s){return 'status-'+(s||'Quoted').replace(' ','-')}
+
+function jobCard(j){
+  const margin=j['Margin %']||0;
+  const marginCls=margin>=18?'badge-green':margin>=12?'badge-yellow':'badge-red';
+  const tradeCls=j.Trade==='Mason'?'badge-amber':j.Trade==='Commercial'?'badge-blue':'badge-green';
+  const status=j.Status||'Quoted';
+  const sCls=statusClass(status);
+  return `<div class="job-card" onclick="showJob('${j.id}')">
+    <div class="job-card-top"><div><div class="job-client">${j.Client||'Unknown'}</div><div class="job-meta">${j['Job Type']||''} &middot; ${j.Location||''} &middot; ${j.Date||''}</div></div><div class="job-total">$${Number(j.Total||0).toLocaleString()}</div></div>
+    <div class="job-badges"><span class="badge ${tradeCls}">${j.Trade||'—'}</span><span class="badge ${marginCls}">${margin}% margin</span><span class="badge status-pill ${sCls}">${status}</span>${j['Change Orders']?`<span class="badge badge-orange">${j['Change Orders']} CO</span>`:''}</div>
+  </div>`;
+}
+
+function showJob(id){
+  currentJob=allJobs.find(j=>j.id===id);if(!currentJob)return;
+  const j=currentJob;const status=j.Status||'Quoted';
+  const statusOpts=STATUSES.map(s=>`<button class="status-opt status-opt-${s.replace(' ','-')} ${status===s?'active':''}" onclick="setStatus('${j.id}','${s}')">${s}</button>`).join('');
+  document.getElementById('modalTitle').textContent=`${j.Client} — ${j['Estimate Number']||''}`;
+  document.getElementById('modalBody').innerHTML=`
+    <div class="summary-grid">
+      <div class="sum-box"><div class="sum-val">$${Number(j.Total||0).toLocaleString()}</div><div class="sum-lbl">Total</div></div>
+      <div class="sum-box"><div class="sum-val">${j['Margin %']||0}%</div><div class="sum-lbl">Margin</div></div>
+      <div class="sum-box"><div class="sum-val">$${Number(j.Profit||0).toLocaleString()}</div><div class="sum-lbl">Profit</div></div>
+      <div class="sum-box"><div class="sum-val">${j['Change Orders']||0}</div><div class="sum-lbl">Change Orders</div></div>
+    </div>
+    <div class="modal-section"><div class="modal-section-title">Project Status</div><div class="status-selector">${statusOpts}</div><div style="font-size:11px;color:var(--text3);margin-top:6px">Tap to update — client emailed automatically</div></div>
+    <div class="modal-section"><div class="modal-section-title">Job Details</div>
+      <div class="modal-row"><span>Client</span><strong>${j.Client||'—'}</strong></div>
+      <div class="modal-row"><span>Job Type</span><strong>${j['Job Type']||'—'}</strong></div>
+      <div class="modal-row"><span>Location</span><strong>${j.Location||'—'}</strong></div>
+      <div class="modal-row"><span>Date</span><strong>${j.Date||'—'}</strong></div>
+      <div class="modal-row"><span>Duration</span><strong>${j['Labor Days']||'—'} days</strong></div>
+    </div>
+    <div class="modal-section"><div class="modal-section-title">Financials</div>
+      <div class="modal-row"><span>Subtotal</span><strong>$${Number(j.Subtotal||0).toLocaleString()}</strong></div>
+      <div class="modal-row"><span>Overhead</span><strong>$${Number(j.Overhead||0).toLocaleString()}</strong></div>
+      <div class="modal-row"><span>Profit</span><strong>$${Number(j.Profit||0).toLocaleString()}</strong></div>
+      <div class="modal-row"><span>Total</span><strong>$${Number(j.Total||0).toLocaleString()}</strong></div>
+    </div>
+    ${j['Line Items']?`<div class="modal-section"><div class="modal-section-title">Line Items</div><div class="modal-text">${j['Line Items']}</div></div>`:''}
+    ${j['Risks']?`<div class="modal-section"><div class="modal-section-title">Risk Flags</div><div class="modal-text">${j['Risks']}</div></div>`:''}
+    ${j['Change Order Log']?`<div class="modal-section"><div class="modal-section-title">Change Order History</div><div class="modal-text">${j['Change Order Log']}</div></div>`:''}
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-primary" onclick="openChangeOrder('${j.id}')">Change Order</button>
+      <button class="modal-btn modal-btn-danger" onclick="confirmDelete('${j.id}')">Delete</button>
+      <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button>
+    </div>`;
+  document.getElementById('jobModal').classList.add('open');
+}
+
+function closeModal(){document.getElementById('jobModal').classList.remove('open')}
+
+async function confirmDelete(id){
+  const j=allJobs.find(j=>j.id===id);if(!j)return;
+  const confirmed=confirm(`Delete "${j.Client} — ${j['Job Type']}"?\n\nThis cannot be undone.`);
+  if(!confirmed)return;
+  try{
+    await fetch(WORKER,{method:'POST',headers:{'Content-Type':'application/json','X-Action':'delete-record'},body:JSON.stringify({id})});
+    closeModal();allJobs=allJobs.filter(j=>j.id!==id);renderHistory(allJobs);
+  }catch(e){alert('Failed to delete: '+e.message)}
+}
+
+async function setStatus(id,newStatus){
+  const j=allJobs.find(j=>j.id===id);if(!j)return;
+  document.querySelectorAll('.status-opt').forEach(b=>{b.classList.toggle('active',b.textContent===newStatus)});
+  try{
+    await fetch(WORKER,{method:'POST',headers:{'Content-Type':'application/json','X-Action':'update-record'},body:JSON.stringify({id,fields:{'Status':newStatus}})});
+    j.Status=newStatus;
+    const msgs={'Accepted':'Your estimate has been accepted and your project is now scheduled.','In Progress':'Work has begun on your project. We\'ll keep you updated.','Complete':'Your project is now complete. Thank you for choosing us!'};
+    if(msgs[newStatus]&&j['Email Address']){
+      await emailjs.send(EMAILJS_SERVICE,EMAILJS_TEMPLATE,{to_email:j['Email Address'],client_name:j.Client,job_type:j['Job Type'],location:j.Location,date:new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}),estimate_number:j['Estimate Number'],total:'$'+Number(j.Total||0).toLocaleString(),margin:j['Margin %']||0,line_items:`Project Status Update: ${newStatus}\n\n${msgs[newStatus]}`,risks:'',notes:msgs[newStatus],valid_days:j['Valid Days']||30});
+    }
+    loadHistory();
+  }catch(e){console.warn('Status update failed:',e)}
+}
+
+function openChangeOrder(id){
+  currentJob=allJobs.find(j=>j.id===id);if(!currentJob)return;
+  const j=currentJob;closeModal();
+  coLines=(j['Line Items']||'').split('\n').filter(Boolean).map((line,i)=>{const parts=line.split(':');const desc=parts[0]?.trim()||line;const rest=parts[1]||'';const total=parseFloat(rest.replace(/[^0-9.]/g,''))||0;return{id:i,desc,total,isNew:false}});
+  document.getElementById('coTitle').textContent=`Change Order — ${j.Client}`;
+  renderCO(j);document.getElementById('coModal').classList.add('open');
+}
+
+function closeCO(){document.getElementById('coModal').classList.remove('open')}
+
+function addNewLineItem(){
+  const j=currentJob;
+  const origLines=(j['Line Items']||'').split('\n').filter(Boolean).map(line=>line.split(':')[0]?.trim()||line);
+  coLines.push({id:Date.now(),desc:'',total:0,isNew:true,origOptions:origLines});renderCO(j);
+}
+
+function renderCO(j){
+  const origTotal=j.Total||0;
+  const origDescs=(j['Line Items']||'').split('\n').filter(Boolean).map(line=>line.split(':')[0]?.trim()||line);
+  const dropdownOpts=['-- Select line item --',...origDescs,'-- Custom item --'].map(o=>`<option value="${o}">${o}</option>`).join('');
+  const linesHTML=coLines.map((l,i)=>`
+    <div class="co-line">
+      <div style="margin-bottom:6px">
+        <select class="co-input" style="margin-bottom:6px" onchange="if(this.value==='-- Custom item --'){coLines[${i}].desc='';coLines[${i}].isNew=true;}else if(this.value!=='-- Select line item --'){coLines[${i}].desc=this.value;}renderCO(currentJob)">
+          ${dropdownOpts.replace(`value="${l.desc}"`,`value="${l.desc}" selected`)}
+        </select>
+        ${l.isNew&&!origDescs.includes(l.desc)?`<input class="co-input" style="margin-bottom:6px" value="${l.desc}" placeholder="Custom item description" oninput="coLines[${i}].desc=this.value">`:'' }
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span style="font-size:12px;color:var(--text2);white-space:nowrap">Amount $</span>
+        <input class="co-input" type="number" value="${l.total||''}" placeholder="0" style="flex:1"
+          oninput="coLines[${i}].total=parseFloat(this.value)||0;updateCOTotals()">
+        <button class="co-remove" onclick="coLines.splice(${i},1);renderCO(currentJob)">&#215;</button>
+      </div>
+    </div>`).join('');
+  document.getElementById('coBody').innerHTML=`
+    <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Select existing line items to modify or add new ones. Updated estimate emails the client automatically.</div>
+    ${linesHTML}
+    <button onclick="addNewLineItem()" style="width:100%;padding:10px;background:var(--gray2);border:1.5px dashed var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text2);cursor:pointer;margin-bottom:12px">+ Add Line Item</button>
+    <div class="co-total-row" id="coTotals"></div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-green" onclick="submitChangeOrder()">✓ Send Change Order</button>
+      <button class="modal-btn modal-btn-secondary" onclick="closeCO()">Cancel</button>
+    </div>`;
+  updateCOTotals();
+}
+
+function updateCOTotals(){
+  const j=currentJob;if(!j)return;
+  const origTotal=j.Total||0;
+  const newTotal=coLines.reduce((s,l)=>s+(l.total||0),0)*(1+(j['Margin %']||18)/100);
+  const diff=newTotal-origTotal;
+  const diffCls=diff>0?'up':'down';
+  const diffStr=(diff>0?'+':'')+'$'+Math.abs(Math.round(diff)).toLocaleString();
+  const el=document.getElementById('coTotals');
+  if(el)el.innerHTML=`
+    <div><div style="font-size:11px;color:var(--text3)">Original</div><div style="font-size:15px;font-weight:700;color:var(--text)">$${Number(origTotal).toLocaleString()}</div></div>
+    <div style="text-align:center"><div style="font-size:11px;color:var(--text3)">Change</div><div class="co-diff ${diffCls}">${diffStr}</div></div>
+    <div style="text-align:right"><div style="font-size:11px;color:var(--text3)">New total</div><div style="font-size:15px;font-weight:700;color:var(--blue2)">$${Math.round(newTotal).toLocaleString()}</div></div>`;
+}
+
+async function submitChangeOrder(){
+  const j=currentJob;const origTotal=j.Total||0;
+  const newSubtotal=coLines.reduce((s,l)=>s+(l.total||0),0);
+  const pftPct=j['Margin %']||18;const ovhPct=12;
+  const ovhAmt=newSubtotal*(ovhPct/100);const pftAmt=newSubtotal*(pftPct/100);
+  const newTotal=newSubtotal+ovhAmt+pftAmt;const diff=newTotal-origTotal;
+  const today=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  const newLineItems=coLines.map(l=>l.desc+(l.total?': $'+Number(l.total).toLocaleString():'')).join('\n');
+  const coCount=(j['Change Orders']||0)+1;
+  const coEntry=`[CO #${coCount} — ${today}] ${diff>=0?'+':''}$${Math.round(Math.abs(diff)).toLocaleString()} — New total: $${Math.round(newTotal).toLocaleString()}`;
+  const coLog=j['Change Order Log']?j['Change Order Log']+'\n'+coEntry:coEntry;
+  try{
+    await fetch(WORKER,{method:'POST',headers:{'Content-Type':'application/json','X-Action':'update-record'},body:JSON.stringify({id:j.id,fields:{'Total':Math.round(newTotal),'Subtotal':Math.round(newSubtotal),'Overhead':Math.round(ovhAmt),'Profit':Math.round(pftAmt),'Line Items':newLineItems,'Change Orders':coCount,'Change Order Log':coLog,'Status':'In Progress'}})});
+    if(j['Email Address']){
+      await emailjs.send(EMAILJS_SERVICE,EMAILJS_TEMPLATE,{to_email:j['Email Address'],client_name:j.Client,job_type:j['Job Type']+' — Change Order #'+coCount,location:j.Location,date:today,estimate_number:j['Estimate Number'],total:'$'+Math.round(newTotal).toLocaleString(),margin:pftPct,line_items:newLineItems,risks:'',notes:`Change Order #${coCount}. Revised total: $${Math.round(newTotal).toLocaleString()} (${diff>=0?'+':''}$${Math.round(Math.abs(diff)).toLocaleString()} from original). Please confirm acceptance.`,valid_days:30});
+    }
+    closeCO();loadHistory();
+  }catch(e){alert('Failed to save change order: '+e.message)}
+}
+
+if('serviceWorker'in navigator){navigator.serviceWorker.register('/contractor-demo/sw.js')}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+</body>
+</html>
