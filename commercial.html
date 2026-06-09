@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#1E40AF">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="ContractorAI">
+<link rel="manifest" href="manifest.json">
+<title>Commercial Estimator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--blue:#1E40AF;--blue2:#2563EB;--blue3:#DBEAFE;--blue4:#EFF6FF;--gray:#F8FAFC;--gray2:#F1F5F9;--border:#E2E8F0;--text:#0F172A;--text2:#475569;--text3:#94A3B8;--green:#166534;--green2:#DCFCE7;--red:#7F1D1D;--redbg:#FEE2E2;--yellow:#78350F;--ybg:#FEF3C7;--white:#fff}
+  body{font-family:'DM Sans',sans-serif;background:var(--gray);color:var(--text);min-height:100vh;padding-bottom:40px}
+  .app-header{background:var(--blue);padding:16px 20px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between}
+  .app-header h1{font-size:18px;font-weight:700;color:#fff}
+  .app-header p{font-size:11px;color:#BFDBFE;margin-top:1px}
+  .home-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:8px;color:#fff;font-size:11px;padding:6px 10px;cursor:pointer;text-decoration:none;white-space:nowrap;font-family:'DM Sans',sans-serif}
+  .steps-row{display:flex;gap:4px;padding:12px 16px;background:var(--white);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+  .steps-row::-webkit-scrollbar{display:none}
+  .step-pill{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid var(--border);color:var(--text2);background:transparent;cursor:pointer;transition:all .2s;white-space:nowrap}
+  .step-pill.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .step-pill.done{background:var(--green2);color:var(--green);border-color:var(--green)}
+  .panel{display:none;padding:16px}.panel.active{display:block}
+  .card{background:var(--white);border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card-header{background:var(--blue4);border-bottom:1px solid var(--blue3);margin:-16px -16px 14px;padding:12px 16px;border-radius:12px 12px 0 0}
+  .card-header h2{font-size:14px;font-weight:700;color:var(--blue)}
+  .card-header p{font-size:11px;color:var(--text2);margin-top:2px}
+  .field{margin-bottom:12px}
+  .field label{display:block;font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px}
+  .field input,.field select,.field textarea{width:100%;font-family:'DM Sans',sans-serif;font-size:15px;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;background:var(--white);color:var(--text);appearance:none;-webkit-appearance:none;outline:none;transition:border-color .15s}
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+  .field textarea{resize:none;min-height:70px;line-height:1.5}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .btn{width:100%;padding:12px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;border:none;border-radius:8px;cursor:pointer;transition:all .15s}
+  .btn-primary{background:var(--blue2);color:white}
+  .btn-primary:active{background:var(--blue);transform:scale(.98)}
+  .btn-secondary{background:var(--white);border:1.5px solid var(--border);color:var(--text2);margin-bottom:8px}
+  .btn-dark{background:var(--text);color:white}
+  .btn-green{background:var(--green);color:white}
+  .loading{display:none;align-items:center;gap:12px;padding:14px;background:var(--blue4);border-radius:10px;margin-bottom:12px;font-size:13px;color:var(--blue)}
+  .loading.show{display:flex}
+  .spinner{width:18px;height:18px;border:2px solid var(--blue3);border-top-color:var(--blue2);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .mat-section{margin-bottom:16px}
+  .mat-section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--blue);margin-bottom:8px;padding-bottom:4px;border-bottom:1.5px solid var(--blue3)}
+  .mat-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;background:var(--gray);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
+  .mat-name{flex:1;font-size:13px;color:var(--text);font-weight:500}
+  .mat-unit{font-size:11px;color:var(--text3);white-space:nowrap}
+  .mat-price-wrap{display:flex;align-items:center;gap:4px}
+  .mat-price-wrap span{font-size:13px;color:var(--text2);font-weight:500}
+  .mat-price{width:80px;font-size:14px;padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;text-align:right;background:var(--white);font-family:'DM Sans',sans-serif}
+  .mat-price:focus{border-color:var(--blue2);outline:none}
+  .mat-price.saved{border-color:var(--green);background:var(--green2);color:var(--green)}
+  .unit-toggle{font-size:11px;padding:5px 7px;border:1.5px solid var(--border);border-radius:6px;background:var(--white);color:var(--text2);font-family:'DM Sans',sans-serif;cursor:pointer;flex-shrink:0;width:80px}
+  .saved-note{font-size:11px;color:var(--green);font-weight:500;margin-bottom:10px;display:flex;align-items:center;gap:4px;background:var(--green2);padding:7px 10px;border-radius:6px}
+  .estimate-card{background:var(--white);border-radius:12px;overflow:hidden;border:1px solid var(--border);margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .est-header{background:var(--blue);padding:14px 16px}
+  .est-company{font-size:16px;font-weight:700;color:#fff}
+  .est-label{font-size:10px;color:#BFDBFE;text-transform:uppercase;letter-spacing:.8px;margin-top:1px}
+  .est-meta{display:grid;grid-template-columns:1fr 1fr;gap:3px 12px;margin-top:10px}
+  .est-meta-item{font-size:11px}
+  .est-meta-item span{color:#93C5FD}
+  .est-meta-item strong{color:#fff}
+  .est-body{padding:0 16px 16px}
+  .line-section{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--blue);background:var(--blue4);padding:5px 0 5px 16px;margin:10px -16px 0}
+  .line-item{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border);gap:8px}
+  .line-item:last-child{border-bottom:none}
+  .line-desc{font-size:12px;color:var(--text);flex:1}
+  .line-detail{font-size:11px;color:var(--text3)}
+  .line-total{font-size:12px;font-weight:700;color:var(--text);white-space:nowrap}
+  .totals-section{border-top:1px solid var(--border);padding-top:10px;margin-top:4px}
+  .total-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:5px}
+  .grand-total{background:var(--blue);margin:10px -16px -16px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+  .grand-label{font-size:12px;color:#BFDBFE;font-weight:500}
+  .grand-amount{font-size:28px;font-weight:700;color:white}
+  .margin-badge{display:inline-flex;align-items:center;gap:5px;background:var(--green2);color:var(--green);font-size:11px;font-weight:600;padding:5px 10px;border-radius:20px;margin:12px 0 0}
+  .save-badge{display:inline-flex;align-items:center;gap:5px;background:var(--blue3);color:var(--blue);font-size:11px;font-weight:600;padding:5px 10px;border-radius:20px;margin:6px 0 0}
+  .risks-section{margin-top:12px}
+  .risks-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text2);margin-bottom:6px}
+  .risk-item{padding:9px 11px;border-radius:8px;margin-bottom:7px;font-size:12px;line-height:1.5}
+  .risk-high{background:var(--redbg);color:var(--red)}.risk-medium{background:var(--ybg);color:var(--yellow)}.risk-low{background:var(--green2);color:var(--green)}
+  .risk-title{font-weight:600;margin-bottom:2px}.risk-fix{font-size:11px;opacity:.85}
+  .est-notes{background:var(--gray2);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text2);line-height:1.6;margin-top:12px;border-left:3px solid var(--blue3)}
+  .error-box{background:var(--redbg);border-radius:8px;padding:12px;color:var(--red);font-size:12px;line-height:1.5;margin-bottom:12px}
+  .tl-item{display:flex;gap:10px;margin-bottom:14px;align-items:flex-start}
+  .tl-left{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+  .tl-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--blue2);background:var(--white);flex-shrink:0}
+  .tl-dot.risk{border-color:#F59E0B;background:var(--ybg)}.tl-dot.done{border-color:var(--green);background:var(--green2)}
+  .tl-line{width:2px;flex:1;background:var(--border);min-height:18px;margin-top:3px}
+  .tl-phase{font-size:12px;font-weight:600;color:var(--text)}.tl-phase.risk{color:var(--yellow)}
+  .tl-day{font-size:11px;color:var(--text3);margin-top:1px}
+  .risk-tag{display:inline-block;background:var(--ybg);color:var(--yellow);font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px;margin-left:5px}
+  .savings-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+  .saving-box{background:var(--white);border-radius:8px;padding:12px 8px;text-align:center;border:1px solid var(--border)}
+  .saving-val{font-size:20px;font-weight:700;color:var(--blue2);line-height:1}
+  .saving-val.green{color:var(--green)}
+  .saving-lbl{font-size:10px;color:var(--text3);margin-top:3px;line-height:1.3}
+  .town-dropdown{display:none;position:absolute;top:100%;left:0;right:0;background:var(--white);border:1.5px solid var(--blue2);border-top:none;border-radius:0 0 8px 8px;max-height:200px;overflow-y:auto;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+  .town-item{padding:10px 12px;cursor:pointer;font-size:14px;border-bottom:1px solid var(--border);background:var(--white)}
+  .town-item:hover{background:var(--blue4)}
+</style>
+</head>
+<body>
+<div class="app-header">
+  <div><h1>Commercial Estimator</h1><p>Enter your real prices — saved automatically</p></div>
+  <a href="index.html" class="home-btn">&#8592; Home</a>
+</div>
+<div class="steps-row">
+  <button class="step-pill active" onclick="goStep(0)">1 · Job Info</button>
+  <button class="step-pill" onclick="goStep(1)">2 · Your Prices</button>
+  <button class="step-pill" onclick="goStep(2)">3 · Estimate</button>
+  <button class="step-pill" onclick="goStep(3)">4 · Schedule</button>
+</div>
+
+<!-- STEP 1 -->
+<div class="panel active" id="panel0">
+  <div class="card">
+    <div class="card-header"><h2>Job Information</h2><p>Fill in after the site walk-through</p></div>
+    <div class="field"><label>Client / Company Name</label><input id="clientName" placeholder="e.g. Apex Realty Group"></div>
+    <div class="field"><label>Client Email</label><input type="email" id="clientEmail" placeholder="client@email.com"></div>
+    <div class="field"><label>Type of Job</label>
+      <select id="jobType" onchange="updateMaterials()">
+        <option value="Office Renovation">Office Renovation</option>
+        <option value="Tenant Fit-Out">Tenant Fit-Out</option>
+        <option value="Retail Buildout">Retail Buildout</option>
+        <option value="Restaurant Buildout">Restaurant Buildout</option>
+        <option value="Medical Office Buildout">Medical Office Buildout</option>
+        <option value="Warehouse Renovation">Warehouse Renovation</option>
+        <option value="Industrial Fit-Out">Industrial Fit-Out</option>
+        <option value="Lobby Renovation">Lobby Renovation</option>
+        <option value="Bathroom Renovation">Bathroom Renovation (Commercial)</option>
+        <option value="Conference Room Buildout">Conference Room Buildout</option>
+      </select>
+    </div>
+    <div class="field"><label>Location</label><div style="position:relative"><input id="location" placeholder="Start typing a town..." autocomplete="off" oninput="filterTowns(this.value)" onfocus="filterTowns(this.value)" onblur="setTimeout(hideTowns,400)"><div id="townDropdown" class="town-dropdown"></div></div></div>
+    <div class="row2">
+      <div class="field"><label>Square Footage</label><input type="number" id="sqft" placeholder="2500" min="1"></div>
+      <div class="field"><label>Number of Floors</label><input type="number" id="floors" placeholder="1" min="1" value="1"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Building Class</label><select id="buildingClass"><option>Class C (older/basic)</option><option selected>Class B (standard)</option><option>Class A (premium)</option></select></div>
+      <div class="field"><label>Complexity</label><select id="complexity"><option>Simple</option><option selected>Standard</option><option>Complex</option></select></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Occupied During Work?</label><select id="occupied"><option>No — vacant space</option><option>Partial occupancy</option><option>Fully occupied</option></select></div>
+      <div class="field"><label>Permits Required</label><select id="permits"><option>None needed</option><option selected>Standard building permit</option><option>Multiple permits</option><option>Full plan review</option></select></div>
+    </div>
+    <div class="field"><label>Site Walk Notes</label><textarea id="notes" placeholder="Existing conditions, MEP coordination, access restrictions..."></textarea></div>
+    <button class="btn btn-primary" onclick="goStep(1)">Next: Enter Your Prices &rarr;</button>
+  </div>
+</div>
+
+<!-- STEP 2 -->
+<div class="panel" id="panel1">
+  <div class="card">
+    <div class="card-header"><h2>Your Trade Prices</h2><p>Enter what you actually pay — saved automatically</p></div>
+    <div id="savedNote" class="saved-note" style="display:none">&#10003; Prices loaded from last job — update any that changed</div>
+    <div class="mat-section">
+      <div class="mat-section-title">Labor Rates</div>
+      <div class="mat-row"><div class="mat-name">General Laborer</div><select class="unit-toggle" id="unit_laborer" onchange="savePrice('laborer_unit',this.value)"><option value="per hr">per hr</option><option value="per sq ft">per sq ft</option></select><div class="mat-price-wrap"><span>$</span><input class="mat-price" id="price_laborer" type="number" placeholder="0" min="0" step="0.01" oninput="savePrice('laborer',this.value)"></div></div>
+      <div class="mat-row"><div class="mat-name">Skilled Carpenter</div><select class="unit-toggle" id="unit_carpenter" onchange="savePrice('carpenter_unit',this.value)"><option value="per hr">per hr</option><option value="per sq ft">per sq ft</option></select><div class="mat-price-wrap"><span>$</span><input class="mat-price" id="price_carpenter" type="number" placeholder="0" min="0" step="0.01" oninput="savePrice('carpenter',this.value)"></div></div>
+      <div class="mat-row"><div class="mat-name">Electrician (sub)</div><select class="unit-toggle" id="unit_electrician" onchange="savePrice('electrician_unit',this.value)"><option value="per hr">per hr</option><option value="per sq ft">per sq ft</option></select><div class="mat-price-wrap"><span>$</span><input class="mat-price" id="price_electrician" type="number" placeholder="0" min="0" step="0.01" oninput="savePrice('electrician',this.value)"></div></div>
+      <div class="mat-row"><div class="mat-name">Plumber (sub)</div><select class="unit-toggle" id="unit_plumber" onchange="savePrice('plumber_unit',this.value)"><option value="per hr">per hr</option><option value="per sq ft">per sq ft</option></select><div class="mat-price-wrap"><span>$</span><input class="mat-price" id="price_plumber" type="number" placeholder="0" min="0" step="0.01" oninput="savePrice('plumber',this.value)"></div></div>
+      <div class="mat-row"><div class="mat-name">HVAC Tech (sub)</div><select class="unit-toggle" id="unit_hvac" onchange="savePrice('hvac_unit',this.value)"><option value="per hr">per hr</option><option value="per sq ft">per sq ft</option></select><div class="mat-price-wrap"><span>$</span><input class="mat-price" id="price_hvac" type="number" placeholder="0" min="0" step="0.01" oninput="savePrice('hvac',this.value)"></div></div>
+    </div>
+    <div id="materialsSection"></div>
+    <div class="mat-section">
+      <div class="mat-section-title">Project Costs</div>
+      <div class="mat-row"><div class="mat-name">Dumpster / Disposal</div><div class="mat-unit">per haul</div><div class="mat-price-wrap"><span>$</span><input class="mat-price" id="price_disposal" type="number" placeholder="0" min="0" step="0.01" oninput="savePrice('disposal',this.value)"></div></div>
+      <div class="mat-row"><div class="mat-name">Permit Fees</div><div class="mat-unit">flat</div><div class="mat-price-wrap"><span>$</span><input class="mat-price" id="price_permits" type="number" placeholder="0" min="0" step="0.01" oninput="savePrice('permits',this.value)"></div></div>
+      <div class="mat-row"><div class="mat-name">Equipment Rental</div><div class="mat-unit">per day</div><div class="mat-price-wrap"><span>$</span><input class="mat-price" id="price_equipment" type="number" placeholder="0" min="0" step="0.01" oninput="savePrice('equipment',this.value)"></div></div>
+    </div>
+    <div id="customSection"></div>
+    <button onclick="addCustomMaterial()" style="width:100%;padding:10px;background:var(--gray2);border:1.5px dashed var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;margin-bottom:12px">+ Add Material or Trade</button>
+    <div class="row2">
+      <div class="field"><label>Overhead %</label><select id="overhead"><option value="10">10%</option><option value="12">12%</option><option value="15" selected>15%</option><option value="20">20%</option></select></div>
+      <div class="field"><label>Profit %</label><select id="profit"><option value="15">15%</option><option value="18">18%</option><option value="20" selected>20%</option><option value="25">25%</option><option value="30">30%</option></select></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-secondary" onclick="goStep(0)" style="flex:1">&#8592; Back</button>
+      <button class="btn btn-primary" onclick="goStep(2);runEstimate()" style="flex:2">Generate Estimate &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 3 -->
+<div class="panel" id="panel2">
+  <div class="loading" id="loading"><div class="spinner"></div><span>Building your commercial estimate...</span></div>
+  <div id="estimateOut"></div>
+</div>
+
+<!-- STEP 4 -->
+<div class="panel" id="panel3"><div id="scheduleOut"></div></div>
+
+<script>
+const WORKER_URL='https://mason-demo.eric-vasil87.workers.dev/';
+const EMAILJS_SERVICE='service_kkunlci',EMAILJS_TEMPLATE='template_peuxd9o',EMAILJS_KEY='AUPTTqhNHEKbexylj',SEND_TO='eric.vasil87@gmail.com';
+window.addEventListener('load',()=>emailjs.init(EMAILJS_KEY));
+let estimateData=null;
+
+const JOB_MATERIALS={
+  'Office Renovation':[{id:'drywall',name:'Drywall (4x8 sheet)',unit:'per sheet'},{id:'studs',name:'Metal Studs',unit:'per lft'},{id:'ceiling_tile',name:'Ceiling Tiles (2x4)',unit:'per tile'},{id:'flooring',name:'Commercial Carpet / LVT',unit:'per sq ft'},{id:'paint',name:'Commercial Paint',unit:'per gallon'},{id:'lighting',name:'LED Lighting Fixtures',unit:'per unit'},{id:'doors',name:'Interior Doors (pre-hung)',unit:'per unit'}],
+  'Tenant Fit-Out':[{id:'drywall',name:'Drywall (4x8 sheet)',unit:'per sheet'},{id:'studs',name:'Metal Studs',unit:'per lft'},{id:'ceiling_tile',name:'Ceiling Tiles (2x4)',unit:'per tile'},{id:'flooring',name:'Commercial Flooring',unit:'per sq ft'},{id:'paint',name:'Commercial Paint',unit:'per gallon'},{id:'lighting',name:'LED Lighting Fixtures',unit:'per unit'},{id:'doors',name:'Interior Doors (pre-hung)',unit:'per unit'},{id:'storefront',name:'Storefront Glass/Frame',unit:'per lft'}],
+  'Retail Buildout':[{id:'drywall',name:'Drywall (4x8 sheet)',unit:'per sheet'},{id:'studs',name:'Metal Studs',unit:'per lft'},{id:'flooring',name:'Retail Flooring (LVT/Tile)',unit:'per sq ft'},{id:'paint',name:'Commercial Paint',unit:'per gallon'},{id:'lighting',name:'Retail Lighting Fixtures',unit:'per unit'},{id:'storefront',name:'Storefront Glass/Frame',unit:'per lft'},{id:'shelving',name:'Display Shelving Units',unit:'per unit'}],
+  'Restaurant Buildout':[{id:'drywall',name:'Drywall (4x8 sheet)',unit:'per sheet'},{id:'tile',name:'Ceramic / Quarry Tile',unit:'per sq ft'},{id:'hood',name:'Commercial Hood System',unit:'per unit'},{id:'grease_trap',name:'Grease Trap',unit:'per unit'},{id:'walk_in',name:'Walk-In Cooler / Freezer',unit:'per unit'},{id:'stainless',name:'Stainless Steel Counter',unit:'per lft'},{id:'lighting',name:'Restaurant Lighting',unit:'per unit'}],
+  'Medical Office Buildout':[{id:'drywall',name:'Drywall (4x8 sheet)',unit:'per sheet'},{id:'studs',name:'Metal Studs',unit:'per lft'},{id:'flooring',name:'Medical Grade Flooring',unit:'per sq ft'},{id:'ceiling_tile',name:'Acoustic Ceiling Tiles',unit:'per tile'},{id:'paint',name:'Washable Paint',unit:'per gallon'},{id:'doors',name:'Medical Doors (wider)',unit:'per unit'},{id:'casework',name:'Medical Casework / Cabinets',unit:'per lft'}],
+  'Warehouse Renovation':[{id:'concrete',name:'Concrete Floor Repair',unit:'per sq ft'},{id:'epoxy',name:'Epoxy Floor Coating',unit:'per sq ft'},{id:'dock_door',name:'Dock Doors',unit:'per unit'},{id:'overhead_door',name:'Overhead Doors',unit:'per unit'},{id:'lighting',name:'High-Bay LED Lighting',unit:'per unit'},{id:'shelving',name:'Industrial Racking/Shelving',unit:'per unit'}],
+  'Industrial Fit-Out':[{id:'concrete',name:'Concrete Slab Work',unit:'per sq ft'},{id:'steel',name:'Structural Steel',unit:'per ton'},{id:'overhead_door',name:'Overhead Doors',unit:'per unit'},{id:'epoxy',name:'Industrial Floor Coating',unit:'per sq ft'},{id:'lighting',name:'Industrial Lighting',unit:'per unit'},{id:'dock_leveler',name:'Dock Levelers',unit:'per unit'}],
+  'Lobby Renovation':[{id:'tile',name:'Porcelain / Stone Tile',unit:'per sq ft'},{id:'drywall',name:'Drywall (4x8 sheet)',unit:'per sheet'},{id:'paint',name:'Premium Paint',unit:'per gallon'},{id:'lighting',name:'Decorative Lighting',unit:'per unit'},{id:'millwork',name:'Custom Millwork',unit:'per lft'},{id:'glass',name:'Glass Partition / Railing',unit:'per sq ft'}],
+  'Bathroom Renovation':[{id:'tile',name:'Ceramic / Porcelain Tile',unit:'per sq ft'},{id:'fixtures',name:'Commercial Fixtures',unit:'per unit'},{id:'partitions',name:'Bathroom Partitions',unit:'per unit'},{id:'waterproof',name:'Waterproofing Membrane',unit:'per sq ft'},{id:'drywall',name:'Moisture-Resistant Drywall',unit:'per sheet'},{id:'lighting',name:'Bathroom Lighting',unit:'per unit'}],
+  'Conference Room Buildout':[{id:'drywall',name:'Drywall (4x8 sheet)',unit:'per sheet'},{id:'studs',name:'Metal Studs',unit:'per lft'},{id:'ceiling_tile',name:'Acoustic Ceiling Tiles',unit:'per tile'},{id:'flooring',name:'Carpet / LVT Flooring',unit:'per sq ft'},{id:'paint',name:'Commercial Paint',unit:'per gallon'},{id:'glass',name:'Glass Wall / Partition',unit:'per sq ft'},{id:'av',name:'AV Rough-In',unit:'per point'}],
+};
+
+function savePrice(id,val){if(val)localStorage.setItem('comm_price_'+id,val)}
+function loadPrice(id){return localStorage.getItem('comm_price_'+id)||''}
+function hasSavedPrices(){return localStorage.getItem('comm_price_laborer')!==null}
+function customKey(jt){return 'comm_custom_'+jt.replace(/\s+/g,'_')}
+function loadCustomMaterials(jt){try{return JSON.parse(localStorage.getItem(customKey(jt)))||[]}catch(e){return[]}}
+function saveCustomMaterials(jt,m){localStorage.setItem(customKey(jt),JSON.stringify(m))}
+function addCustomMaterial(){const jt=document.getElementById('jobType').value;const m=loadCustomMaterials(jt);m.push({name:'',unit:'each',price:''});saveCustomMaterials(jt,m);renderCustomMaterials();setTimeout(()=>{const i=document.querySelectorAll('.mat-name-input');if(i.length)i[i.length-2].focus()},50)}
+function updateCustomMat(i,field,val){const jt=document.getElementById('jobType').value;const m=loadCustomMaterials(jt);if(m[i]){m[i][field]=val;saveCustomMaterials(jt,m)}}
+function removeCustomMat(i){const jt=document.getElementById('jobType').value;const m=loadCustomMaterials(jt);m.splice(i,1);saveCustomMaterials(jt,m);renderCustomMaterials()}
+function renderCustomMaterials(){const jt=document.getElementById('jobType').value;const cm=loadCustomMaterials(jt);const sec=document.getElementById('customSection');if(!cm.length){sec.innerHTML='';return}let html='<div class="mat-section"><div class="mat-section-title">Additional Items</div>';cm.forEach((m,i)=>{html+=`<div class="mat-row"><input class="mat-name-input" type="text" placeholder="Item name" value="${m.name}" oninput="updateCustomMat(${i},'name',this.value)" style="flex:1;font-size:13px;padding:4px 6px;border:1px solid var(--border);border-radius:6px;background:var(--white);font-family:inherit"><input class="mat-name-input" type="text" placeholder="unit" value="${m.unit}" oninput="updateCustomMat(${i},'unit',this.value)" style="width:64px;font-size:11px;padding:4px 6px;border:1px solid var(--border);border-radius:6px;background:var(--white);font-family:inherit;color:var(--text2)"><div class="mat-price-wrap"><span>$</span><input class="mat-price" type="number" placeholder="0" min="0" step="0.01" value="${m.price}" oninput="updateCustomMat(${i},'price',this.value)" style="width:70px"></div><button onclick="removeCustomMat(${i})" style="background:var(--redbg);border:none;border-radius:6px;color:var(--red);font-size:16px;width:28px;height:28px;cursor:pointer;flex-shrink:0;font-weight:700">&#215;</button></div>`});html+='</div>';sec.innerHTML=html}
+
+function updateMaterials(){
+  const jt=document.getElementById('jobType').value;const mats=JOB_MATERIALS[jt]||[];
+  const sec=document.getElementById('materialsSection');const sn=document.getElementById('savedNote');
+  if(hasSavedPrices())sn.style.display='flex';
+  ['laborer','carpenter','electrician','plumber','hvac','disposal','permits','equipment'].forEach(id=>{const el=document.getElementById('price_'+id);if(!el)return;el.value=loadPrice(id);if(loadPrice(id))el.classList.add('saved')});
+  ['laborer','carpenter','electrician','plumber','hvac'].forEach(id=>{const el=document.getElementById('unit_'+id);if(el&&loadPrice(id+'_unit'))el.value=loadPrice(id+'_unit')});
+  let html=`<div class="mat-section"><div class="mat-section-title">Materials — ${jt}</div>`;
+  mats.forEach(m=>{const saved=loadPrice(m.id);html+=`<div class="mat-row"><div class="mat-name">${m.name}</div><div class="mat-unit">${m.unit}</div><div class="mat-price-wrap"><span>$</span><input class="mat-price${saved?' saved':''}" id="price_${m.id}" type="number" placeholder="0" min="0" step="0.01" value="${saved}" oninput="savePrice('${m.id}',this.value)"></div></div>`});
+  html+='</div>';sec.innerHTML=html;renderCustomMaterials();
+}
+
+function goStep(n){document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===n));document.querySelectorAll('.step-pill').forEach((t,i)=>{t.classList.toggle('active',i===n);t.classList.toggle('done',i<n)});window.scrollTo(0,0)}
+
+function buildPricingString(){
+  const jt=document.getElementById('jobType').value;const mats=JOB_MATERIALS[jt]||[];let lines=[];
+  const laborIds=['laborer','carpenter','electrician','plumber','hvac'];const laborNames=['General Laborer','Skilled Carpenter','Electrician (sub)','Plumber (sub)','HVAC Tech (sub)'];
+  laborIds.forEach((id,i)=>{const val=document.getElementById('price_'+id).value;const unit=document.getElementById('unit_'+id)?.value||'per hr';if(val)lines.push(`- ${laborNames[i]}: $${val} ${unit}`)});
+  mats.forEach(m=>{const val=document.getElementById('price_'+m.id);if(val&&val.value)lines.push(`- ${m.name}: $${val.value} ${m.unit}`)});
+  const disp=document.getElementById('price_disposal').value;if(disp)lines.push(`- Disposal: $${disp}/haul`);
+  const perm=document.getElementById('price_permits').value;if(perm)lines.push(`- Permit fees: $${perm} flat`);
+  const equip=document.getElementById('price_equipment').value;if(equip)lines.push(`- Equipment: $${equip}/day`);
+  loadCustomMaterials(jt).forEach(m=>{if(m.name&&m.price)lines.push(`- ${m.name}: $${m.price} ${m.unit}`)});
+  return lines.length>0?lines.join('\n'):'- Use realistic NJ 2025 commercial rates';
+}
+
+async function callClaude(prompt,tokens){const r=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:tokens,messages:[{role:'user',content:prompt}]})});const d=await r.json();if(d.error)throw new Error(d.error.message);return d.content[0].text}
+
+function buildPrompt(){
+  const sqft=document.getElementById('sqft').value||'0';const today=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  const ovh=document.getElementById('overhead').value;const pft=document.getElementById('profit').value;
+  return `You are an expert commercial GC estimator in NJ. Return ONLY raw JSON, no markdown.
+DATE: ${today}
+JOB: Client=${document.getElementById('clientName').value}, Type=${document.getElementById('jobType').value}, Location=${document.getElementById('location').value}, SqFt=${sqft}, Floors=${document.getElementById('floors').value}, Class=${document.getElementById('buildingClass').value}, Complexity=${document.getElementById('complexity').value}, Occupied=${document.getElementById('occupied').value}, Permits=${document.getElementById('permits').value}, Notes=${document.getElementById('notes').value}
+PRICES: ${buildPricingString()}
+OVERHEAD: ${ovh}% PROFIT: ${pft}%
+Return: {"estimate_number":"COMM-${new Date().getFullYear()}-${Math.floor(Math.random()*900)+100}","date":"${today}","valid_days":30,"project_duration_weeks":4,"crew_size":5,"line_items":[{"category":"Demo & Site Prep","description":"...","qty":"...","unit_price":0,"total":0},{"category":"Framing","description":"...","qty":"...","unit_price":0,"total":0},{"category":"Mechanical / Electrical / Plumbing","description":"...","qty":"...","unit_price":0,"total":0},{"category":"Finishes","description":"...","qty":"...","unit_price":0,"total":0},{"category":"Project Costs","description":"...","qty":"...","unit_price":0,"total":0}],"subtotal":0,"overhead_pct":${ovh},"overhead_amt":0,"profit_pct":${pft},"profit_amt":0,"total":0,"cost_per_sqft":0,"risks":[{"level":"medium","issue":"...","mitigation":"..."}],"notes":"2-sentence closing.","schedule":[{"phase":"...","week":"Week 1-2","risk":false}]}`;
+}
+
+async function runEstimate(){
+  const out=document.getElementById('estimateOut');out.innerHTML='';document.getElementById('loading').classList.add('show');
+  try{const text=await callClaude(buildPrompt(),1800);const match=text.match(/\{[\s\S]*\}/);if(!match)throw new Error('No JSON returned');estimateData=JSON.parse(match[0]);renderEstimate(estimateData)}
+  catch(err){document.getElementById('loading').classList.remove('show');out.innerHTML=`<div class="error-box"><strong>Error:</strong> ${err.message}</div>`}
+}
+
+async function saveToAirtable(d){
+  const client=document.getElementById('clientName').value;const margin=((d.profit_amt/d.total)*100).toFixed(1);
+  const lineText=d.line_items.map(i=>`${i.description}: ${i.qty} @ $${Number(i.unit_price).toFixed(2)} = $${Number(i.total).toLocaleString()}`).join('\n');
+  const riskText=d.risks.map(r=>`[${r.level.toUpperCase()}] ${r.issue} — ${r.mitigation}`).join('\n');
+  await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json','X-Action':'save-estimate'},body:JSON.stringify({'Client':client,'Email Address':document.getElementById('clientEmail').value,'Job Type':document.getElementById('jobType').value,'Trade':'Commercial','Location':document.getElementById('location').value,'Date':d.date,'Estimate Number':d.estimate_number,'Total':d.total,'Subtotal':d.subtotal,'Overhead':d.overhead_amt,'Profit':d.profit_amt,'Margin %':parseFloat(margin),'Labor Days':d.project_duration_weeks,'Crew Size':d.crew_size,'Line Items':lineText,'Risks':riskText,'Notes':d.notes,'Valid Days':d.valid_days})});
+}
+
+function renderEstimate(d){
+  document.getElementById('loading').classList.remove('show');
+  const client=document.getElementById('clientName').value;const margin=((d.profit_amt/d.total)*100).toFixed(1);const isGood=parseFloat(margin)>=15;
+  const cats={};d.line_items.forEach(item=>{if(!cats[item.category])cats[item.category]=[];cats[item.category].push(item)});
+  let linesHTML='';Object.keys(cats).forEach(cat=>{linesHTML+=`<div class="line-section">${cat}</div>`;cats[cat].forEach(item=>{linesHTML+=`<div class="line-item"><div><div class="line-desc">${item.description}</div><div class="line-detail">${item.qty||''} · $${Number(item.unit_price).toFixed(2)}</div></div><div class="line-total">$${Number(item.total).toLocaleString()}</div></div>`})});
+  const risksHTML=d.risks.map(r=>`<div class="risk-item risk-${r.level}"><div class="risk-title">${r.level==='high'?'⚠':r.level==='medium'?'⚡':'✓'} ${r.issue}</div><div class="risk-fix">${r.mitigation}</div></div>`).join('');
+  document.getElementById('estimateOut').innerHTML=`
+    <div class="estimate-card">
+      <div class="est-header"><div class="est-company">Commercial Contractor</div><div class="est-label">Commercial Estimate · ${d.date}</div>
+        <div class="est-meta"><div class="est-meta-item"><span>Client: </span><strong>${client}</strong></div><div class="est-meta-item"><span>No: </span><strong>${d.estimate_number}</strong></div><div class="est-meta-item"><span>Duration: </span><strong>${d.project_duration_weeks} weeks</strong></div><div class="est-meta-item"><span>Crew: </span><strong>${d.crew_size} workers</strong></div><div class="est-meta-item"><span>Cost/sqft: </span><strong>$${Number(d.cost_per_sqft).toFixed(2)}</strong></div></div>
+      </div>
+      <div class="est-body">${linesHTML}<div class="totals-section"><div class="total-row"><span>Subtotal</span><span>$${Number(d.subtotal).toLocaleString()}</span></div><div class="total-row"><span>Overhead (${d.overhead_pct}%)</span><span>$${Number(d.overhead_amt).toLocaleString()}</span></div><div class="total-row"><span>Profit (${d.profit_pct}%)</span><span>$${Number(d.profit_amt).toLocaleString()}</span></div></div>
+        <div class="grand-total"><div class="grand-label">Total Estimate</div><div class="grand-amount">$${Number(d.total).toLocaleString()}</div></div>
+      </div>
+    </div>
+    <div class="margin-badge">${isGood?'✓':'⚠'} Profit margin: ${margin}% — ${isGood?'Healthy':'Below target'}</div>
+    <div class="save-badge" id="saveBadge">Saving to job history...</div>
+    <div class="risks-section"><div class="risks-label">Risk Flags</div>${risksHTML}</div>
+    <div class="est-notes">📋 ${d.notes}</div>
+    <div style="display:flex;gap:8px;margin-top:14px"><button class="btn btn-secondary" onclick="goStep(1)" style="flex:1">← Edit</button><button class="btn btn-primary" onclick="goStep(3);renderSchedule()" style="flex:2">View Schedule →</button></div>
+    <button id="emailBtn" class="btn btn-dark" onclick="sendEstimateEmail()" style="margin-top:10px">📧 Email This Estimate</button>
+    <a href="index.html" class="btn btn-green" style="margin-top:10px;text-align:center;text-decoration:none;display:block;padding:12px;border-radius:8px;font-weight:600;font-size:14px">✓ Done — Back to Home</a>`;
+  saveToAirtable(d).then(()=>{const b=document.getElementById('saveBadge');if(b){b.textContent='✓ Saved to Job History';b.style.background='var(--green2)';b.style.color='var(--green)'}}).catch(e=>console.warn('Save failed:',e));
+}
+
+function renderSchedule(){
+  if(!estimateData)return;const d=estimateData;
+  const tlHTML=d.schedule.map((s,i)=>`<div class="tl-item"><div class="tl-left"><div class="tl-dot ${s.risk?'risk':i===d.schedule.length-1?'done':''}"></div>${i<d.schedule.length-1?'<div class="tl-line"></div>':''}</div><div><div class="tl-phase ${s.risk?'risk':''}">${s.phase}${s.risk?'<span class="risk-tag">Risk</span>':''}</div><div class="tl-day">${s.week||s.day||''}</div></div></div>`).join('');
+  const risksHTML=d.risks.map(r=>`<div class="risk-item risk-${r.level}"><div class="risk-title">${r.level==='high'?'⚠':r.level==='medium'?'⚡':'✓'} ${r.issue}</div><div class="risk-fix">${r.mitigation}</div></div>`).join('');
+  document.getElementById('scheduleOut').innerHTML=`<div class="card"><div class="card-header"><h2>Project Timeline</h2><p>Week-by-week breakdown</p></div>${tlHTML}</div><div class="card"><div class="card-header"><h2>Pre-Project Risk Review</h2><p>Flagged before mobilization</p></div>${risksHTML}</div><div class="savings-grid"><div class="saving-box"><div class="saving-val">Hours</div><div class="saving-lbl">saved on estimate</div></div><div class="saving-box"><div class="saving-val green">${d.risks.length}</div><div class="saving-lbl">risks flagged early</div></div><div class="saving-box"><div class="saving-val">$${Number(d.total).toLocaleString()}</div><div class="saving-lbl">professional bid</div></div><div class="saving-box"><div class="saving-val green">${d.profit_pct}%</div><div class="saving-lbl">margin tracked</div></div></div><button class="btn btn-secondary" onclick="goStep(2)" style="margin-top:12px">← Back to Estimate</button>`;
+}
+
+async function sendEstimateEmail(){
+  const btn=document.getElementById('emailBtn');btn.textContent='Sending...';btn.disabled=true;
+  const d=estimateData;const client=document.getElementById('clientName').value;const margin=((d.profit_amt/d.total)*100).toFixed(1);
+  const lineItemsText=d.line_items.map(i=>`${i.description}: ${i.qty} @ $${Number(i.unit_price).toFixed(2)} = $${Number(i.total).toLocaleString()}`).join('\n');
+  const risksText=d.risks.map(r=>`[${r.level.toUpperCase()}] ${r.issue} — ${r.mitigation}`).join('\n');
+  try{await emailjs.send(EMAILJS_SERVICE,EMAILJS_TEMPLATE,{to_email:document.getElementById('clientEmail').value||SEND_TO,client_name:client,job_type:document.getElementById('jobType').value,location:document.getElementById('location').value,date:d.date,estimate_number:d.estimate_number,total:'$'+Number(d.total).toLocaleString(),margin,line_items:lineItemsText,risks:risksText,notes:d.notes,valid_days:d.valid_days});btn.textContent='✓ Estimate Sent!';btn.style.background='var(--green)';setTimeout(()=>{btn.textContent='📧 Email This Estimate';btn.style.background='';btn.disabled=false},3000)}
+  catch(err){btn.textContent='Failed — try again';btn.disabled=false}
+}
+
+const NJ_TOWNS=['Absecon','Allenhurst','Allentown','Asbury Park','Atlantic City','Atlantic Highlands','Audubon','Avalon','Avon-by-the-Sea','Barnegat','Barrington','Bay Head','Bayonne','Beach Haven','Beachwood','Belleville','Belmar','Belvidere','Berkeley Heights','Berlin','Bernardsville','Bloomfield','Bloomingdale','Bogota','Boonton','Bordentown','Bound Brook','Bradley Beach','Brick','Bridgeton','Bridgewater','Brielle','Brigantine','Burlington','Butler','Caldwell','Cape May','Carlstadt','Carteret','Cedar Grove','Chatham','Cherry Hill','Clark','Cliffside Park','Clifton','Clinton','Closter','Collingswood','Colts Neck','Cranford','Cresskill','Deal','Denville','Dover','Dumont','Dunellen','East Brunswick','East Orange','East Rutherford','Eatontown','Edison','Elizabeth','Elmwood Park','Emerson','Englewood','Englewood Cliffs','Fair Haven','Fair Lawn','Fairfield','Fanwood','Flemington','Florence','Florham Park','Fort Lee','Freehold','Garfield','Garwood','Glassboro','Glen Ridge','Glen Rock','Gloucester City','Hackensack','Hackettstown','Haddonfield','Haddon Heights','Haledon','Hamburg','Hammonton','Harrison','Hasbrouck Heights','Hawthorne','Highland Park','Highlands','Hillsborough','Hillsdale','Hillside','Ho-Ho-Kus','Hoboken','Hopatcong','Howell','Irvington','Jersey City','Keansburg','Kearny','Kenilworth','Keyport','Lakehurst','Lakewood','Lambertville','Linden','Linwood','Little Falls','Little Ferry','Little Silver','Lodi','Long Branch','Longport','Lyndhurst','Madison','Mahwah','Manasquan','Manville','Maplewood','Margate City','Marlboro','Matawan','Maywood','Medford','Metuchen','Middletown','Midland Park','Millburn','Milltown','Millville','Montclair','Moorestown','Morristown','Mountain Lakes','Mount Holly','Mount Laurel','Newark','New Brunswick','New Milford','New Providence','Newton','North Arlington','North Bergen','North Brunswick','North Caldwell','North Plainfield','Northvale','Nutley','Oakland','Ocean City','Oceanport','Old Bridge','Orange','Palisades Park','Paramus','Park Ridge','Parsippany','Passaic','Paterson','Perth Amboy','Phillipsburg','Piscataway','Pitman','Plainfield','Plainsboro','Point Pleasant','Princeton','Rahway','Ramsey','Raritan','Red Bank','Ridgefield','Ridgefield Park','Ridgewood','Ringwood','River Edge','Roselle','Roselle Park','Rumson','Rutherford','Saddle Brook','Saddle River','Salem','Sayreville','Sea Bright','Secaucus','Somers Point','Somerset','Somerville','South Amboy','South Orange','South Plainfield','South River','Spring Lake','Springfield','Summit','Teaneck','Tenafly','Tinton Falls','Toms River','Totowa','Trenton','Union','Union Beach','Union City','Verona','Vineland','Voorhees','Waldwick','Wallington','Wanaque','Warren','Washington','Wayne','Weehawken','West Caldwell','West Long Branch','West Milford','West New York','West Orange','West Windsor','Westfield','Westwood','Wharton','Wildwood','Woodbridge','Woodbury','Woodcliff Lake','Wyckoff'].map(t=>t+', NJ');
+function filterTowns(val){const dd=document.getElementById('townDropdown');if(!val||val.length<1){dd.style.display='none';return}const matches=NJ_TOWNS.filter(t=>t.toLowerCase().includes(val.toLowerCase())).slice(0,8);if(!matches.length){dd.style.display='none';return}dd.innerHTML=matches.map(t=>`<div class="town-item" onmousedown="selectTown('${t}')">${t}</div>`).join('');dd.style.display='block'}
+function selectTown(t){document.getElementById('location').value=t;hideTowns()}
+function hideTowns(){document.getElementById('townDropdown').style.display='none'}
+if('serviceWorker'in navigator){navigator.serviceWorker.register('/contractor-demo/sw.js')}
+updateMaterials();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+</body>
+</html>
