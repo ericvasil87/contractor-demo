@@ -419,7 +419,7 @@ async function sendEstimateEmail(){
   try{
     await emailjs.send(EMAILJS_SERVICE,EMAILJS_TEMPLATE,{to_email:document.getElementById('clientEmail').value||SEND_TO,client_name:client,job_type:document.getElementById('jobType').value,location:document.getElementById('location').value,date:d.date,estimate_number:d.estimate_number,total:'$'+Number(d.total).toLocaleString(),margin,line_items:lineItemsText,risks:risksText,notes:d.notes,valid_days:d.valid_days});
     btn.textContent='✓ Estimate Sent!';btn.style.background='var(--green)';
-    setTimeout(()=>{btn.textContent='&#128231; Email This Estimate';btn.style.background='';btn.disabled=false},3000);
+    setTimeout(()=>{btn.textContent='📧 Email This Estimate';btn.style.background='';btn.disabled=false},3000);
   }catch(err){btn.textContent='Failed — try again';btn.disabled=false}
 }
 
