@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#1E40AF">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="ContractorAI">
+<link rel="manifest" href="manifest.json">
+<title>Mason Estimator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --blue:#1E40AF;--blue2:#2563EB;--blue3:#DBEAFE;--blue4:#EFF6FF;
+    --gray:#F8FAFC;--gray2:#F1F5F9;--gray3:#E2E8F0;--gray4:#CBD5E1;
+    --text:#0F172A;--text2:#475569;--text3:#94A3B8;
+    --green:#166534;--green2:#DCFCE7;
+    --red:#7F1D1D;--redbg:#FEE2E2;
+    --yellow:#78350F;--ybg:#FEF3C7;
+    --border:#E2E8F0;--white:#fff;
+  }
+  body{font-family:'DM Sans',sans-serif;background:var(--gray);color:var(--text);min-height:100vh;padding-bottom:40px}
+  .app-header{background:var(--blue);padding:16px 20px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between}
+  .app-header h1{font-size:18px;font-weight:700;color:#fff;letter-spacing:.3px}
+  .app-header p{font-size:11px;color:#BFDBFE;margin-top:1px}
+  .home-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:8px;color:#fff;font-size:11px;padding:6px 10px;cursor:pointer;text-decoration:none;white-space:nowrap;font-family:'DM Sans',sans-serif}
+  .steps-row{display:flex;gap:4px;padding:12px 16px;background:#fff;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+  .steps-row::-webkit-scrollbar{display:none}
+  .step-pill{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid var(--border);color:var(--text2);background:transparent;cursor:pointer;transition:all .2s;white-space:nowrap}
+  .step-pill.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .step-pill.done{background:var(--green2);color:var(--green);border-color:var(--green)}
+  .panel{display:none;padding:16px}.panel.active{display:block}
+  .card{background:var(--white);border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card-header{background:var(--blue4);border-bottom:1px solid var(--blue3);margin:-16px -16px 14px;padding:12px 16px;border-radius:12px 12px 0 0}
+  .card-header h2{font-size:14px;font-weight:700;color:var(--blue);letter-spacing:.2px}
+  .card-header p{font-size:11px;color:var(--text2);margin-top:2px}
+  .field{margin-bottom:12px}
+  .field label{display:block;font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px}
+  .field input,.field select,.field textarea{width:100%;font-family:'DM Sans',sans-serif;font-size:15px;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;background:var(--white);color:var(--text);appearance:none;-webkit-appearance:none;outline:none;transition:border-color .15s}
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+  .field textarea{resize:none;min-height:70px;line-height:1.5}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .btn{width:100%;padding:12px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;border:none;border-radius:8px;cursor:pointer;transition:all .15s}
+  .btn-primary{background:var(--blue2);color:white}
+  .btn-primary:active{background:var(--blue);transform:scale(.98)}
+  .btn-secondary{background:var(--white);border:1.5px solid var(--border);color:var(--text2);margin-bottom:8px}
+  .btn-dark{background:var(--text);color:white}
+  .btn-green{background:var(--green);color:white}
+  .loading{display:none;align-items:center;gap:12px;padding:14px;background:var(--blue4);border-radius:10px;margin-bottom:12px;font-size:13px;color:var(--blue)}
+  .loading.show{display:flex}
+  .spinner{width:18px;height:18px;border:2px solid var(--blue3);border-top-color:var(--blue2);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .mat-section{margin-bottom:16px}
+  .mat-section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--blue);margin-bottom:8px;padding-bottom:4px;border-bottom:1.5px solid var(--blue3)}
+  .mat-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;background:var(--gray);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
+  .mat-name{flex:1;font-size:13px;color:var(--text);font-weight:500}
+  .mat-unit{font-size:11px;color:var(--text3);white-space:nowrap}
+  .mat-price-wrap{display:flex;align-items:center;gap:4px}
+  .mat-price-wrap span{font-size:13px;color:var(--text2);font-weight:500}
+  .mat-price{width:80px;font-size:14px;padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;text-align:right;background:var(--white);font-family:'DM Sans',sans-serif;color:var(--text)}
+  .mat-price:focus{border-color:var(--blue2);outline:none}
+  .mat-price.saved{border-color:var(--green);background:var(--green2);color:var(--green)}
+  .unit-toggle{font-size:11px;padding:5px 7px;border:1.5px solid var(--border);border-radius:6px;background:var(--white);color:var(--text2);font-family:'DM Sans',sans-serif;cursor:pointer;flex-shrink:0;width:80px}
+  .saved-note{font-size:11px;color:var(--green);font-weight:500;margin-bottom:10px;display:flex;align-items:center;gap:4px;background:var(--green2);padding:7px 10px;border-radius:6px}
+  /* Estimate output */
+  .estimate-card{background:var(--white);border-radius:12px;overflow:hidden;border:1px solid var(--border);margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .est-header{background:var(--blue);padding:14px 16px}
+  .est-company{font-size:16px;font-weight:700;color:#fff;letter-spacing:.3px}
+  .est-label{font-size:10px;color:#BFDBFE;text-transform:uppercase;letter-spacing:.8px;margin-top:1px}
+  .est-meta{display:grid;grid-template-columns:1fr 1fr;gap:3px 12px;margin-top:10px}
+  .est-meta-item{font-size:11px}
+  .est-meta-item span{color:#93C5FD}
+  .est-meta-item strong{color:#fff}
+  .est-body{padding:0 16px 16px}
+  .line-section{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--blue);background:var(--blue4);padding:5px 0 5px 16px;margin:10px -16px 0}
+  .line-item{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border);gap:8px}
+  .line-item:last-child{border-bottom:none}
+  .line-desc{font-size:12px;color:var(--text);flex:1}
+  .line-detail{font-size:11px;color:var(--text3)}
+  .line-total{font-size:12px;font-weight:700;color:var(--text);white-space:nowrap}
+  .totals-section{border-top:1px solid var(--border);padding-top:10px;margin-top:4px}
+  .total-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:5px}
+  .grand-total{background:var(--blue);margin:10px -16px -16px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+  .grand-label{font-size:12px;color:#BFDBFE;font-weight:500}
+  .grand-amount{font-size:28px;font-weight:700;color:white;letter-spacing:.5px}
+  .margin-badge{display:inline-flex;align-items:center;gap:5px;background:var(--green2);color:var(--green);font-size:11px;font-weight:600;padding:5px 10px;border-radius:20px;margin:12px 0 0}
+  .save-badge{display:inline-flex;align-items:center;gap:5px;background:var(--blue3);color:var(--blue);font-size:11px;font-weight:600;padding:5px 10px;border-radius:20px;margin:6px 0 0}
+  .risks-section{margin-top:12px}
+  .risks-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text2);margin-bottom:6px}
+  .risk-item{padding:9px 11px;border-radius:8px;margin-bottom:7px;font-size:12px;line-height:1.5}
+  .risk-high{background:var(--redbg);color:var(--red)}
+  .risk-medium{background:var(--ybg);color:var(--yellow)}
+  .risk-low{background:var(--green2);color:var(--green)}
+  .risk-title{font-weight:600;margin-bottom:2px}
+  .risk-fix{font-size:11px;opacity:.85}
+  .est-notes{background:var(--gray2);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text2);line-height:1.6;margin-top:12px;border-left:3px solid var(--blue3)}
+  .error-box{background:var(--redbg);border-radius:8px;padding:12px;color:var(--red);font-size:12px;line-height:1.5;margin-bottom:12px}
+  /* Timeline */
+  .tl-item{display:flex;gap:10px;margin-bottom:14px;align-items:flex-start}
+  .tl-left{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+  .tl-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--blue2);background:var(--white);flex-shrink:0}
+  .tl-dot.risk{border-color:#F59E0B;background:var(--ybg)}
+  .tl-dot.done{border-color:var(--green);background:var(--green2)}
+  .tl-line{width:2px;flex:1;background:var(--border);min-height:18px;margin-top:3px}
+  .tl-phase{font-size:12px;font-weight:600;color:var(--text)}
+  .tl-phase.risk{color:var(--yellow)}
+  .tl-day{font-size:11px;color:var(--text3);margin-top:1px}
+  .risk-tag{display:inline-block;background:var(--ybg);color:var(--yellow);font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px;margin-left:5px}
+  .savings-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+  .saving-box{background:var(--white);border-radius:8px;padding:12px 8px;text-align:center;border:1px solid var(--border)}
+  .saving-val{font-size:20px;font-weight:700;color:var(--blue2);line-height:1}
+  .saving-val.green{color:var(--green)}
+  .saving-lbl{font-size:10px;color:var(--text3);margin-top:3px;line-height:1.3}
+  /* Town dropdown */
+  .town-dropdown{display:none;position:absolute;top:100%;left:0;right:0;background:var(--white);border:1.5px solid var(--blue2);border-top:none;border-radius:0 0 8px 8px;max-height:200px;overflow-y:auto;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+  .town-item{padding:10px 12px;cursor:pointer;font-size:14px;border-bottom:1px solid var(--border);background:var(--white)}
+  .town-item:hover{background:var(--blue4)}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div>
+    <h1>Mason Estimator</h1>
+    <p>Enter your real prices — saved automatically</p>
+  </div>
+  <a href="index.html" class="home-btn">&#8592; Home</a>
+</div>
+
+<div class="steps-row">
+  <button class="step-pill active" onclick="goStep(0)">1 · Job Info</button>
+  <button class="step-pill" onclick="goStep(1)">2 · Your Prices</button>
+  <button class="step-pill" onclick="goStep(2)">3 · Estimate</button>
+  <button class="step-pill" onclick="goStep(3)">4 · Schedule</button>
+</div>
+
+<!-- STEP 1 -->
+<div class="panel active" id="panel0">
+  <div class="card">
+    <div class="card-header"><h2>Job Information</h2><p>Fill in after the site visit</p></div>
+    <div class="field"><label>Client Name</label><input id="clientName" placeholder="e.g. Johnson Residence"></div>
+    <div class="field"><label>Client Email</label><input type="email" id="clientEmail" placeholder="client@email.com"></div>
+    <div class="field"><label>Type of Job</label>
+      <select id="jobType" onchange="updateMaterials()">
+        <option value="Brick Patio">Brick Patio</option>
+        <option value="Retaining Wall">Retaining Wall</option>
+        <option value="Brick Walkway">Brick Walkway</option>
+        <option value="Stone Veneer">Stone Veneer</option>
+        <option value="Chimney Repair">Chimney Repair</option>
+        <option value="Block Foundation">Block Foundation</option>
+        <option value="Decorative Column">Decorative Column</option>
+        <option value="Bluestone Patio">Bluestone Patio</option>
+        <option value="Stoop Repair">Stoop Repair</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Location</label>
+      <div style="position:relative">
+        <input id="location" placeholder="Start typing a town..." autocomplete="off"
+          oninput="filterTowns(this.value)" onfocus="filterTowns(this.value)" onblur="setTimeout(hideTowns,400)">
+        <div id="townDropdown" class="town-dropdown"></div>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Length (ft)</label><input type="number" id="dimL" placeholder="24" min="1"></div>
+      <div class="field"><label>Width (ft)</label><input type="number" id="dimW" placeholder="16" min="1"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Complexity</label><select id="complexity"><option>Simple</option><option selected>Standard</option><option>Complex</option></select></div>
+      <div class="field"><label>Site Access</label><select id="access"><option>Easy</option><option selected>Moderate</option><option>Difficult</option></select></div>
+    </div>
+    <div class="field"><label>Site Visit Notes</label>
+      <textarea id="notes" placeholder="Roots, slopes, tight access, client requests..."></textarea>
+    </div>
+    <button class="btn btn-primary" onclick="goStep(1)">Next: Enter Your Prices &rarr;</button>
+  </div>
+</div>
+
+<!-- STEP 2 -->
+<div class="panel" id="panel1">
+  <div class="card">
+    <div class="card-header"><h2>Your Material Prices</h2><p>Enter what you actually pay — saved automatically</p></div>
+    <div id="savedNote" class="saved-note" style="display:none">&#10003; Prices loaded from last job — update any that changed</div>
+    <div class="mat-section">
+      <div class="mat-section-title">Labor</div>
+      <div class="mat-row">
+        <div class="mat-name">Mason Labor Rate</div>
+        <select class="unit-toggle" id="unit_labor" onchange="savePrice('labor_unit',this.value)">
+          <option value="per hr">per hr</option>
+          <option value="per sq ft">per sq ft</option>
+        </select>
+        <div class="mat-price-wrap"><span>$</span><input class="mat-price" id="price_labor" type="number" placeholder="0" min="0" step="0.01" oninput="savePrice('labor',this.value)"></div>
+      </div>
+    </div>
+    <div id="materialsSection"></div>
+    <div class="mat-section">
+      <div class="mat-section-title">Equipment &amp; Disposal</div>
+      <div class="mat-row">
+        <div class="mat-name">Plate Compactor Rental</div>
+        <div class="mat-unit">per day</div>
+        <div class="mat-price-wrap"><span>$</span><input class="mat-price" id="price_compactor" type="number" placeholder="0" min="0" step="0.01" oninput="savePrice('compactor',this.value)"></div>
+      </div>
+      <div class="mat-row">
+        <div class="mat-name">Debris Disposal</div>
+        <div class="mat-unit">per job</div>
+        <div class="mat-price-wrap"><span>$</span><input class="mat-price" id="price_disposal" type="number" placeholder="0" min="0" step="0.01" oninput="savePrice('disposal',this.value)"></div>
+      </div>
+    </div>
+    <div id="customSection"></div>
+    <button onclick="addCustomMaterial()" style="width:100%;padding:10px;background:var(--gray2);border:1.5px dashed var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;margin-bottom:12px">+ Add Material</button>
+    <div class="row2">
+      <div class="field"><label>Overhead %</label>
+        <select id="overhead"><option value="10">10%</option><option value="12" selected>12%</option><option value="15">15%</option><option value="20">20%</option></select>
+      </div>
+      <div class="field"><label>Profit %</label>
+        <select id="profit"><option value="15">15%</option><option value="18" selected>18%</option><option value="20">20%</option><option value="25">25%</option><option value="30">30%</option></select>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>NJ Sales Tax</label>
+        <select id="salesTax"><option value="0">None (labor only)</option><option value="6.625" selected>6.625% (NJ standard)</option><option value="3.3125">3.3125% (UEZ zone)</option></select>
+      </div>
+      <div class="field"><label>Markup Preset</label>
+        <select id="markupPreset" onchange="applyMarkupPreset()"><option value="custom">Custom (above)</option><option value="standard">Standard (12/18)</option><option value="premium">Premium (15/25)</option><option value="competitive">Competitive (10/15)</option></select>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-secondary" onclick="goStep(0)" style="flex:1">&#8592; Back</button>
+      <button class="btn btn-primary" onclick="showBufferPopup()" style="flex:2">Generate Estimate &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<!-- MATERIAL BUFFER POPUP -->
+<div id="bufferModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:1000;padding:20px;overflow-y:auto">
+  <div style="background:#fff;border-radius:16px;max-width:400px;margin:60px auto;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.2)">
+    <div style="background:var(--blue);padding:16px">
+      <div style="font-size:15px;font-weight:700;color:#fff">Material Buffer</div>
+      <div style="font-size:11px;color:#BFDBFE;margin-top:2px">Account for extra, lost, or broken materials</div>
+    </div>
+    <div style="padding:20px">
+      <div style="font-size:36px;text-align:center;margin-bottom:12px">📦</div>
+      <div style="font-size:13px;color:var(--text2);text-align:center;line-height:1.6;margin-bottom:20px">
+        Add a 10% material buffer to cover waste, breakage, and extra materials needed during the job? This adds a safety margin to your material costs.
+      </div>
+      <button onclick="generateWithBuffer(true)" style="width:100%;padding:12px;background:var(--blue2);color:#fff;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:8px">
+        ✓ Yes, add 10% buffer
+      </button>
+      <button onclick="generateWithBuffer(false)" style="width:100%;padding:12px;background:#fff;border:1.5px solid var(--border);color:var(--text2);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer">
+        No buffer, exact materials only
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT SCHEDULE MODAL -->
+<div id="paymentModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:1000;padding:20px;overflow-y:auto">
+  <div style="background:#fff;border-radius:16px;max-width:420px;margin:40px auto;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.2)">
+    <div style="background:var(--blue);padding:16px;display:flex;justify-content:space-between;align-items:center">
+      <div><div style="font-size:15px;font-weight:700;color:#fff">Payment Schedule</div><div style="font-size:11px;color:#BFDBFE;margin-top:2px">Choose how the client pays</div></div>
+      <button onclick="closePaymentSchedule()" style="background:transparent;border:none;color:#BFDBFE;font-size:22px;cursor:pointer">×</button>
+    </div>
+    <div style="padding:20px">
+      <div style="font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Payment split</div>
+      <select id="paymentPreset" onchange="renderPaymentPreview()" style="width:100%;font-family:'DM Sans',sans-serif;font-size:15px;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;background:#fff;margin-bottom:16px">
+        <option value="50-50">50% Deposit / 50% Final</option>
+        <option value="33-33-34">33% Deposit / 33% Midpoint / 34% Final</option>
+        <option value="25-50-25">25% Deposit / 50% Progress / 25% Final</option>
+        <option value="10-40-40-10">10% Deposit / 40% Rough-In / 40% Substantial / 10% Final</option>
+      </select>
+      <div id="paymentPreview"></div>
+      <button onclick="emailPaymentSchedule()" id="payEmailBtn" style="width:100%;padding:12px;background:var(--green);color:#fff;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;margin-top:14px">📧 Email Schedule to Client</button>
+      <button onclick="closePaymentSchedule()" style="width:100%;padding:10px;background:var(--gray2);color:var(--text2);border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-top:8px">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 3 -->
+<div class="panel" id="panel2">
+  <div class="loading" id="loading"><div class="spinner"></div><span>Building your estimate...</span></div>
+  <div id="estimateOut"></div>
+</div>
+
+<!-- STEP 4 -->
+<div class="panel" id="panel3">
+  <div id="scheduleOut"></div>
+</div>
+
+<script>
+const WORKER_URL       = 'https://mason-demo.eric-vasil87.workers.dev/';
+const EMAILJS_SERVICE  = 'service_kkunlci';
+const EMAILJS_TEMPLATE = 'template_peuxd9o';
+const EMAILJS_KEY      = 'AUPTTqhNHEKbexylj';
+const SEND_TO          = 'eric.vasil87@gmail.com';
+window.addEventListener('load', () => emailjs.init(EMAILJS_KEY));
+let estimateData = null;
+
+const JOB_MATERIALS = {
+  'Brick Patio':[{id:'paver',name:'Concrete Pavers (4x8)',unit:'per unit'},{id:'poly_sand',name:'Polymeric Sand',unit:'per bag'},{id:'gravel',name:'Gravel Base',unit:'per ton'},{id:'edging',name:'Paver Edging',unit:'per lft'},{id:'sealer',name:'Wet-Look Sealer',unit:'per gal'}],
+  'Retaining Wall':[{id:'block',name:'Retaining Wall Block',unit:'per unit'},{id:'gravel',name:'Gravel Backfill',unit:'per ton'},{id:'drain_pipe',name:'Drainage Pipe',unit:'per lft'},{id:'filter_fab',name:'Filter Fabric',unit:'per sq ft'},{id:'cap_block',name:'Cap Block',unit:'per unit'}],
+  'Brick Walkway':[{id:'brick',name:'Standard Clay Brick',unit:'per unit'},{id:'poly_sand',name:'Polymeric Sand',unit:'per bag'},{id:'gravel',name:'Gravel Base',unit:'per ton'},{id:'edging',name:'Paver Edging',unit:'per lft'},{id:'sealer',name:'Wet-Look Sealer',unit:'per gal'}],
+  'Stone Veneer':[{id:'stone',name:'Stone Veneer',unit:'per sq ft'},{id:'mortar',name:'Type S Mortar',unit:'per bag'},{id:'scratch_coat',name:'Scratch Coat Mix',unit:'per bag'},{id:'grout',name:'Grout',unit:'per bag'},{id:'sealer',name:'Stone Sealer',unit:'per gal'}],
+  'Chimney Repair':[{id:'brick',name:'Standard Clay Brick',unit:'per unit'},{id:'mortar',name:'Type S Mortar',unit:'per bag'},{id:'tuckpoint',name:'Tuckpointing Mix',unit:'per bag'},{id:'flashing',name:'Flashing Material',unit:'per lft'},{id:'crown_coat',name:'Crown Coat Sealant',unit:'per gal'}],
+  'Block Foundation':[{id:'cmu_block',name:'CMU Block (8x8x16)',unit:'per unit'},{id:'mortar',name:'Type S Mortar',unit:'per bag'},{id:'rebar',name:'Rebar (#4)',unit:'per lft'},{id:'gravel',name:'Gravel Base',unit:'per ton'},{id:'waterproof',name:'Waterproofing Coat',unit:'per gal'}],
+  'Decorative Column':[{id:'brick',name:'Face Brick',unit:'per unit'},{id:'mortar',name:'Type S Mortar',unit:'per bag'},{id:'cap_stone',name:'Cap Stone',unit:'per unit'},{id:'rebar',name:'Rebar (#4)',unit:'per lft'},{id:'sealer',name:'Brick Sealer',unit:'per gal'}],
+  'Bluestone Patio':[{id:'bluestone',name:'Bluestone (irregular)',unit:'per sq ft'},{id:'mortar',name:'Type S Mortar',unit:'per bag'},{id:'gravel',name:'Gravel Base',unit:'per ton'},{id:'poly_sand',name:'Polymeric Sand',unit:'per bag'},{id:'sealer',name:'Stone Sealer',unit:'per gal'}],
+  'Stoop Repair':[{id:'brick',name:'Standard Clay Brick',unit:'per unit'},{id:'mortar',name:'Type S Mortar',unit:'per bag'},{id:'tuckpoint',name:'Tuckpointing Mix',unit:'per bag'},{id:'sealer',name:'Masonry Sealer',unit:'per gal'},{id:'caulk',name:'Masonry Caulk',unit:'per tube'}],
+};
+
+function savePrice(id,val){if(val)localStorage.setItem('mason_price_'+id,val)}
+function loadPrice(id){return localStorage.getItem('mason_price_'+id)||''}
+function hasSavedPrices(){return localStorage.getItem('mason_price_labor')!==null}
+function customKey(jt){return 'mason_custom_'+jt.replace(/\s+/g,'_')}
+function loadCustomMaterials(jt){try{return JSON.parse(localStorage.getItem(customKey(jt)))||[]}catch(e){return[]}}
+function saveCustomMaterials(jt,m){localStorage.setItem(customKey(jt),JSON.stringify(m))}
+function addCustomMaterial(){const jt=document.getElementById('jobType').value;const m=loadCustomMaterials(jt);m.push({name:'',unit:'each',price:''});saveCustomMaterials(jt,m);updateMaterials();setTimeout(()=>{const i=document.querySelectorAll('.mat-name-input');if(i.length)i[i.length-2].focus()},50)}
+function updateCustomMat(i,field,val){const jt=document.getElementById('jobType').value;const m=loadCustomMaterials(jt);if(m[i]){m[i][field]=val;saveCustomMaterials(jt,m)}}
+function removeCustomMat(i){const jt=document.getElementById('jobType').value;const m=loadCustomMaterials(jt);m.splice(i,1);saveCustomMaterials(jt,m);updateMaterials()}
+
+function updateMaterials(){
+  const jt=document.getElementById('jobType').value;
+  const mats=JOB_MATERIALS[jt]||[];
+  const sec=document.getElementById('materialsSection');
+  const sn=document.getElementById('savedNote');
+  if(hasSavedPrices())sn.style.display='flex';
+  const laborEl=document.getElementById('price_labor');
+  const compEl=document.getElementById('price_compactor');
+  const dispEl=document.getElementById('price_disposal');
+  const unitEl=document.getElementById('unit_labor');
+  laborEl.value=loadPrice('labor');if(loadPrice('labor'))laborEl.classList.add('saved');
+  compEl.value=loadPrice('compactor');if(loadPrice('compactor'))compEl.classList.add('saved');
+  dispEl.value=loadPrice('disposal');if(loadPrice('disposal'))dispEl.classList.add('saved');
+  if(loadPrice('labor_unit'))unitEl.value=loadPrice('labor_unit');
+  let html=`<div class="mat-section"><div class="mat-section-title">Materials — ${jt}</div>`;
+  mats.forEach(m=>{const saved=loadPrice(m.id);html+=`<div class="mat-row"><div class="mat-name">${m.name}</div><div class="mat-unit">${m.unit}</div><div class="mat-price-wrap"><span>$</span><input class="mat-price${saved?' saved':''}" id="price_${m.id}" type="number" placeholder="0" min="0" step="0.01" value="${saved}" oninput="savePrice('${m.id}',this.value)"></div></div>`});
+  const customs=loadCustomMaterials(jt);
+  customs.forEach((m,i)=>{html+=`<div class="mat-row"><input class="mat-name-input" type="text" placeholder="Material name" value="${m.name}" oninput="updateCustomMat(${i},'name',this.value)" style="flex:1;font-size:13px;padding:4px 6px;border:1px solid var(--border);border-radius:6px;background:var(--white);font-family:inherit"><input class="mat-name-input" type="text" placeholder="unit" value="${m.unit}" oninput="updateCustomMat(${i},'unit',this.value)" style="width:60px;font-size:11px;padding:4px 6px;border:1px solid var(--border);border-radius:6px;background:var(--white);font-family:inherit;color:var(--text2)"><div class="mat-price-wrap"><span>$</span><input class="mat-price" type="number" placeholder="0" min="0" step="0.01" value="${m.price}" oninput="updateCustomMat(${i},'price',this.value)" style="width:70px"></div><button onclick="removeCustomMat(${i})" style="background:var(--redbg);border:none;border-radius:6px;color:var(--red);font-size:16px;width:28px;height:28px;cursor:pointer;flex-shrink:0;font-weight:700">&#215;</button></div>`});
+  html+='</div>';
+  sec.innerHTML=html;
+}
+
+let materialBuffer = false;
+
+function applyMarkupPreset(){
+  const p=document.getElementById('markupPreset').value;
+  if(p==='standard'){document.getElementById('overhead').value='12';document.getElementById('profit').value='18';}
+  else if(p==='premium'){document.getElementById('overhead').value='15';document.getElementById('profit').value='25';}
+  else if(p==='competitive'){document.getElementById('overhead').value='10';document.getElementById('profit').value='15';}
+}
+
+function showBufferPopup(){
+  document.getElementById('bufferModal').style.display='block';
+}
+
+function generateWithBuffer(useBuffer){
+  materialBuffer=useBuffer;
+  document.getElementById('bufferModal').style.display='none';
+  goStep(2);
+  runEstimate();
+}
+
+function goStep(n){
+  document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===n));
+  document.querySelectorAll('.step-pill').forEach((t,i)=>{t.classList.toggle('active',i===n);t.classList.toggle('done',i<n)});
+  window.scrollTo(0,0);
+}
+
+function buildPricingString(){
+  const jt=document.getElementById('jobType').value;
+  const mats=JOB_MATERIALS[jt]||[];
+  let lines=[];
+  const labor=document.getElementById('price_labor').value;
+  const laborUnit=document.getElementById('unit_labor').value;
+  if(labor)lines.push(`- Mason Labor: $${labor} ${laborUnit}`);
+  mats.forEach(m=>{const v=document.getElementById('price_'+m.id);if(v&&v.value)lines.push(`- ${m.name}: $${v.value} ${m.unit}`)});
+  const comp=document.getElementById('price_compactor').value;
+  if(comp)lines.push(`- Plate Compactor: $${comp}/day`);
+  const disp=document.getElementById('price_disposal').value;
+  if(disp)lines.push(`- Debris Disposal: $${disp}/job`);
+  loadCustomMaterials(jt).forEach(m=>{if(m.name&&m.price)lines.push(`- ${m.name}: $${m.price} ${m.unit}`)});
+  return lines.length>0?lines.join('\n'):'- Use realistic NJ 2025 mason rates';
+}
+
+async function callClaude(prompt,tokens){
+  const r=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:tokens,messages:[{role:'user',content:prompt}]})});
+  const d=await r.json();if(d.error)throw new Error(d.error.message);return d.content[0].text;
+}
+
+function buildPrompt(){
+  const sqft=(parseFloat(document.getElementById('dimL').value)||0)*(parseFloat(document.getElementById('dimW').value)||0);
+  const today=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  const ovh=document.getElementById('overhead').value;const pft=document.getElementById('profit').value;
+  const tax=document.getElementById('salesTax').value;
+  const bufferNote=materialBuffer?'IMPORTANT: Add a 10% material buffer to all material quantities and costs to account for waste, breakage, and extra materials. Add this as a separate line item called "Material Buffer (10%)".':'Do not add any material buffer.';
+  const taxNote=parseFloat(tax)>0?`Apply ${tax}% NJ sales tax to materials only (not labor). Add as a line item called "NJ Sales Tax (${tax}%)".`:'No sales tax applies.';
+  return `You are an expert masonry estimator for a small NJ contractor. Return ONLY raw JSON, no markdown.
+DATE: ${today}
+JOB: Client=${document.getElementById('clientName').value}, Type=${document.getElementById('jobType').value}, Location=${document.getElementById('location').value}, Dimensions=${document.getElementById('dimL').value||0}x${document.getElementById('dimW').value||0}ft=${sqft}sqft, Complexity=${document.getElementById('complexity').value}, Access=${document.getElementById('access').value}, Notes=${document.getElementById('notes').value}
+PRICES: ${buildPricingString()}
+OVERHEAD: ${ovh}% PROFIT: ${pft}%
+${bufferNote}
+${taxNote}
+Return: {"estimate_number":"EST-${new Date().getFullYear()}-${Math.floor(Math.random()*900)+100}","date":"${today}","valid_days":30,"labor_days":3,"crew_size":2,"line_items":[{"category":"Materials","description":"...","qty":"...","unit_price":0,"total":0},{"category":"Labor","description":"...","qty":"...","unit_price":0,"total":0},{"category":"Equipment","description":"...","qty":"...","unit_price":0,"total":0},{"category":"Disposal","description":"Debris removal","qty":"1 job","unit_price":0,"total":0}],"subtotal":0,"overhead_pct":${ovh},"overhead_amt":0,"profit_pct":${pft},"profit_amt":0,"total":0,"risks":[{"level":"medium","issue":"...","mitigation":"..."}],"notes":"2-sentence closing note.","schedule":[{"phase":"...","day":"Day 1 AM","risk":false}]}`;
+}
+
+async function runEstimate(){
+  const out=document.getElementById('estimateOut');out.innerHTML='';
+  document.getElementById('loading').classList.add('show');
+  try{
+    const text=await callClaude(buildPrompt(),1500);
+    estimateData=parseEstimateJSON(text);renderEstimate(estimateData);
+  }catch(err){document.getElementById('loading').classList.remove('show');out.innerHTML=`<div class="error-box"><strong>Error:</strong> ${err.message}</div>`}
+}
+
+async function saveToAirtable(d){
+  const client=document.getElementById('clientName').value;
+  const margin=((d.profit_amt/d.total)*100).toFixed(1);
+  const lineText=d.line_items.map(i=>`${i.description}: ${i.qty} @ $${Number(i.unit_price).toFixed(2)} = $${Number(i.total).toLocaleString()}`).join('\n');
+  const riskText=d.risks.map(r=>`[${r.level.toUpperCase()}] ${r.issue} — ${r.mitigation}`).join('\n');
+  await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json','X-Action':'save-estimate'},body:JSON.stringify({'Client':client,'Email Address':document.getElementById('clientEmail').value,'Job Type':document.getElementById('jobType').value,'Trade':'Mason','Location':document.getElementById('location').value,'Date':d.date,'Estimate Number':d.estimate_number,'Total':d.total,'Subtotal':d.subtotal,'Overhead':d.overhead_amt,'Profit':d.profit_amt,'Margin %':parseFloat(margin),'Labor Days':d.labor_days,'Crew Size':d.crew_size,'Line Items':lineText,'Risks':riskText,'Notes':d.notes,'Valid Days':d.valid_days})});
+}
+
+function renderEstimate(d){
+  document.getElementById('loading').classList.remove('show');
+  const client=document.getElementById('clientName').value;
+  const margin=((d.profit_amt/d.total)*100).toFixed(1);
+  const isGood=parseFloat(margin)>=15;
+  const cats={};d.line_items.forEach(item=>{if(!cats[item.category])cats[item.category]=[];cats[item.category].push(item)});
+  let linesHTML='';
+  Object.keys(cats).forEach(cat=>{linesHTML+=`<div class="line-section">${cat}</div>`;cats[cat].forEach(item=>{linesHTML+=`<div class="line-item"><div><div class="line-desc">${item.description}</div><div class="line-detail">${item.qty||''} · $${Number(item.unit_price).toFixed(2)}</div></div><div class="line-total">$${Number(item.total).toLocaleString()}</div></div>`})});
+  const risksHTML=d.risks.map(r=>`<div class="risk-item risk-${r.level}"><div class="risk-title">${r.level==='high'?'⚠':r.level==='medium'?'⚡':'✓'} ${r.issue}</div><div class="risk-fix">${r.mitigation}</div></div>`).join('');
+  document.getElementById('estimateOut').innerHTML=`
+    <div class="estimate-card">
+      <div class="est-header">
+        <div class="est-company">Mason Company</div>
+        <div class="est-label">Professional Estimate · ${d.date}</div>
+        <div class="est-meta">
+          <div class="est-meta-item"><span>For: </span><strong>${client}</strong></div>
+          <div class="est-meta-item"><span>No: </span><strong>${d.estimate_number}</strong></div>
+          <div class="est-meta-item"><span>Valid: </span><strong>${d.valid_days} days</strong></div>
+          <div class="est-meta-item"><span>Crew: </span><strong>${d.crew_size} masons</strong></div>
+          <div class="est-meta-item"><span>Duration: </span><strong>${d.labor_days} days</strong></div>
+        </div>
+      </div>
+      <div class="est-body">
+        ${linesHTML}
+        <div class="totals-section">
+          <div class="total-row"><span>Subtotal</span><span>$${Number(d.subtotal).toLocaleString()}</span></div>
+          <div class="total-row"><span>Overhead (${d.overhead_pct}%)</span><span>$${Number(d.overhead_amt).toLocaleString()}</span></div>
+          <div class="total-row"><span>Profit (${d.profit_pct}%)</span><span>$${Number(d.profit_amt).toLocaleString()}</span></div>
+        </div>
+        <div class="grand-total"><div class="grand-label">Total Estimate</div><div class="grand-amount">$${Number(d.total).toLocaleString()}</div></div>
+      </div>
+    </div>
+    <div class="margin-badge">${isGood?'✓':'⚠'} Profit margin: ${margin}% — ${isGood?'Healthy':'Below target'}</div>
+    <div class="save-badge" id="saveBadge">Saving to job history...</div>
+    <div class="risks-section"><div class="risks-label">Risk Flags</div>${risksHTML}</div>
+    <div class="est-notes">📋 ${d.notes}</div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="btn btn-secondary" onclick="goStep(1)" style="flex:1">← Edit</button>
+      <button class="btn btn-primary" onclick="goStep(3);renderSchedule()" style="flex:2">View Schedule →</button>
+    </div>
+    <button id="emailBtn" class="btn btn-dark" onclick="sendEstimateEmail()" style="margin-top:10px">📧 Email This Estimate</button>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn btn-secondary" onclick="downloadPDF()" style="flex:1">📄 Download PDF</button>
+      <button class="btn btn-secondary" onclick="openPaymentSchedule()" style="flex:1">💵 Payment Plan</button>
+    </div>
+    <a href="index.html" class="btn btn-green" style="margin-top:10px;text-align:center;text-decoration:none;display:block;padding:12px;border-radius:8px;font-weight:600;font-size:14px">✓ Done — Back to Home</a>`;
+  saveToAirtable(d).then(()=>{const b=document.getElementById('saveBadge');if(b){b.textContent='✓ Saved to Job History';b.style.background='var(--green2)';b.style.color='var(--green)'}}).catch(e=>console.warn('Save failed:',e));
+}
+
+function renderSchedule(){
+  if(!estimateData)return;const d=estimateData;
+  const tlHTML=d.schedule.map((s,i)=>`<div class="tl-item"><div class="tl-left"><div class="tl-dot ${s.risk?'risk':i===d.schedule.length-1?'done':''}"></div>${i<d.schedule.length-1?'<div class="tl-line"></div>':''}</div><div><div class="tl-phase ${s.risk?'risk':''}">${s.phase}${s.risk?'<span class="risk-tag">Risk</span>':''}</div><div class="tl-day">${s.day||''}</div></div></div>`).join('');
+  const risksHTML=d.risks.map(r=>`<div class="risk-item risk-${r.level}"><div class="risk-title">${r.level==='high'?'⚠':r.level==='medium'?'⚡':'✓'} ${r.issue}</div><div class="risk-fix">${r.mitigation}</div></div>`).join('');
+  document.getElementById('scheduleOut').innerHTML=`
+    <div class="card"><div class="card-header"><h2>Project Timeline</h2><p>Built from your job details</p></div>${tlHTML}</div>
+    <div class="card"><div class="card-header"><h2>Pre-Job Risk Review</h2><p>Caught before day one</p></div>${risksHTML}</div>
+    <div class="savings-grid">
+      <div class="saving-box"><div class="saving-val">~2 hrs</div><div class="saving-lbl">saved per estimate</div></div>
+      <div class="saving-box"><div class="saving-val green">${d.risks.length}</div><div class="saving-lbl">risks flagged early</div></div>
+      <div class="saving-box"><div class="saving-val">$${Number(d.total).toLocaleString()}</div><div class="saving-lbl">professional bid</div></div>
+      <div class="saving-box"><div class="saving-val green">${d.profit_pct}%</div><div class="saving-lbl">margin tracked</div></div>
+    </div>
+    <button class="btn btn-secondary" onclick="goStep(2)" style="margin-top:12px">← Back to Estimate</button>`;
+}
+
+async function sendEstimateEmail(){
+  const btn=document.getElementById('emailBtn');btn.textContent='Sending...';btn.disabled=true;
+  const d=estimateData;const client=document.getElementById('clientName').value;
+  const margin=((d.profit_amt/d.total)*100).toFixed(1);
+  const lineItemsText=d.line_items.map(i=>`${i.description}: ${i.qty} @ $${Number(i.unit_price).toFixed(2)} = $${Number(i.total).toLocaleString()}`).join('\n');
+  const risksText=d.risks.map(r=>`[${r.level.toUpperCase()}] ${r.issue} — ${r.mitigation}`).join('\n');
+  try{
+    await emailjs.send(EMAILJS_SERVICE,EMAILJS_TEMPLATE,{to_email:document.getElementById('clientEmail').value||SEND_TO,client_name:client,job_type:document.getElementById('jobType').value,location:document.getElementById('location').value,date:d.date,estimate_number:d.estimate_number,total:'$'+Number(d.total).toLocaleString(),margin,line_items:lineItemsText,risks:risksText,notes:d.notes,valid_days:d.valid_days});
+    btn.textContent='✓ Estimate Sent!';btn.style.background='var(--green)';
+    setTimeout(()=>{btn.textContent='📧 Email This Estimate';btn.style.background='';btn.disabled=false},3000);
+  }catch(err){btn.textContent='Failed — try again';btn.disabled=false}
+}
+
+const NJ_TOWNS=['Absecon','Allenhurst','Allentown','Asbury Park','Atlantic City','Atlantic Highlands','Audubon','Avalon','Avon-by-the-Sea','Barnegat','Barrington','Bay Head','Bayonne','Beach Haven','Beachwood','Belleville','Belmar','Belvidere','Berkeley Heights','Berlin','Bernardsville','Bloomfield','Bloomingdale','Bogota','Boonton','Bordentown','Bound Brook','Bradley Beach','Brick','Bridgeton','Bridgewater','Brielle','Brigantine','Burlington','Butler','Caldwell','Cape May','Carlstadt','Carteret','Cedar Grove','Chatham','Cherry Hill','Clark','Cliffside Park','Clifton','Clinton','Closter','Collingswood','Colts Neck','Cranford','Cresskill','Deal','Denville','Dover','Dumont','Dunellen','East Brunswick','East Orange','East Rutherford','Eatontown','Edison','Elizabeth','Elmwood Park','Emerson','Englewood','Englewood Cliffs','Fair Haven','Fair Lawn','Fairfield','Fanwood','Flemington','Florence','Florham Park','Fort Lee','Freehold','Garfield','Garwood','Glassboro','Glen Ridge','Glen Rock','Gloucester City','Hackensack','Hackettstown','Haddonfield','Haddon Heights','Haledon','Hamburg','Hammonton','Harrison','Hasbrouck Heights','Hawthorne','Highland Park','Highlands','Hillsborough','Hillsdale','Hillside','Ho-Ho-Kus','Hoboken','Hopatcong','Howell','Irvington','Jersey City','Keansburg','Kearny','Kenilworth','Keyport','Lakehurst','Lakewood','Lambertville','Linden','Linwood','Little Falls','Little Ferry','Little Silver','Lodi','Long Branch','Longport','Lyndhurst','Madison','Mahwah','Manasquan','Manville','Maplewood','Margate City','Marlboro','Matawan','Maywood','Medford','Metuchen','Middletown','Midland Park','Millburn','Milltown','Millville','Montclair','Moorestown','Morristown','Mountain Lakes','Mount Holly','Mount Laurel','Newark','New Brunswick','New Milford','New Providence','Newton','North Arlington','North Bergen','North Brunswick','North Caldwell','North Plainfield','Northvale','Nutley','Oakland','Ocean City','Oceanport','Old Bridge','Orange','Palisades Park','Paramus','Park Ridge','Parsippany','Passaic','Paterson','Perth Amboy','Phillipsburg','Piscataway','Pitman','Plainfield','Plainsboro','Point Pleasant','Princeton','Rahway','Ramsey','Raritan','Red Bank','Ridgefield','Ridgefield Park','Ridgewood','Ringwood','River Edge','Roselle','Roselle Park','Rumson','Rutherford','Saddle Brook','Saddle River','Salem','Sayreville','Sea Bright','Secaucus','Somers Point','Somerset','Somerville','South Amboy','South Orange','South Plainfield','South River','Spring Lake','Springfield','Summit','Teaneck','Tenafly','Tinton Falls','Toms River','Totowa','Trenton','Union','Union Beach','Union City','Verona','Vineland','Voorhees','Waldwick','Wallington','Wanaque','Warren','Washington','Wayne','Weehawken','West Caldwell','West Long Branch','West Milford','West New York','West Orange','West Windsor','Westfield','Westwood','Wharton','Wildwood','Woodbridge','Woodbury','Woodcliff Lake','Wyckoff'].map(t=>t+', NJ');
+function filterTowns(val){const dd=document.getElementById('townDropdown');if(!val||val.length<1){dd.style.display='none';return}const matches=NJ_TOWNS.filter(t=>t.toLowerCase().includes(val.toLowerCase())).slice(0,8);if(!matches.length){dd.style.display='none';return}dd.innerHTML=matches.map(t=>`<div class="town-item" onmousedown="selectTown('${t}')">${t}</div>`).join('');dd.style.display='block'}
+function selectTown(t){document.getElementById('location').value=t;hideTowns()}
+function hideTowns(){document.getElementById('townDropdown').style.display='none'}
+if('serviceWorker'in navigator){navigator.serviceWorker.register('/contractor-demo/sw.js')}
+updateMaterials();
+
+// ── PDF + Payment Schedule ──
+function downloadPDF(){
+  if(!estimateData)return;
+  downloadEstimatePDF(estimateData,{companyName:'Mason Company',client:document.getElementById('clientName').value,location:document.getElementById('location').value,trade:'Mason',jobType:document.getElementById('jobType').value});
+}
+function openPaymentSchedule(){if(!estimateData)return;document.getElementById('paymentModal').style.display='block';renderPaymentPreview()}
+function closePaymentSchedule(){document.getElementById('paymentModal').style.display='none'}
+function renderPaymentPreview(){
+  const preset=document.getElementById('paymentPreset').value;
+  const schedule=buildPaymentSchedule(estimateData.total,PAYMENT_PRESETS[preset]);
+  document.getElementById('paymentPreview').innerHTML=paymentScheduleHTML(schedule,estimateData.total);
+}
+async function emailPaymentSchedule(){
+  const btn=document.getElementById('payEmailBtn');btn.textContent='Sending...';btn.disabled=true;
+  const preset=document.getElementById('paymentPreset').value;
+  const schedule=buildPaymentSchedule(estimateData.total,PAYMENT_PRESETS[preset]);
+  const scheduleText=schedule.map(s=>`${s.label} (${s.pct}%): $${s.amount.toLocaleString()}`).join('\n');
+  const to=document.getElementById('clientEmail').value||SEND_TO;
+  try{
+    await emailjs.send(EMAILJS_SERVICE,EMAILJS_TEMPLATE,{to_email:to,client_name:document.getElementById('clientName').value,job_type:document.getElementById('jobType').value+' — Payment Schedule',location:document.getElementById('location').value,date:estimateData.date,estimate_number:estimateData.estimate_number,total:'$'+Number(estimateData.total).toLocaleString(),margin:'',line_items:scheduleText,risks:'',notes:'Payment schedule for your project. Please review the payment terms below.',valid_days:estimateData.valid_days});
+    btn.textContent='✓ Schedule Sent!';
+    setTimeout(()=>{btn.textContent='📧 Email Schedule to Client';btn.disabled=false},3000);
+  }catch(e){btn.textContent='Failed — try again';btn.disabled=false}
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="contractor-tools.js"></script>
+</body>
+</html>
