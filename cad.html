@@ -4,23 +4,23 @@
 <script src="gate.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="theme-color" content="#1E40AF">
+<meta name="theme-color" content="#0E1A2B">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="ContractorAI">
 <link rel="manifest" href="manifest.json">
 <title>CAD Drawing Analyzer</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
   *{box-sizing:border-box;margin:0;padding:0}
-  :root{--blue:#1E40AF;--blue2:#2563EB;--blue3:#DBEAFE;--blue4:#EFF6FF;--gray:#F8FAFC;--gray2:#F1F5F9;--border:#E2E8F0;--text:#0F172A;--text2:#475569;--text3:#94A3B8;--green:#166534;--green2:#DCFCE7;--red:#7F1D1D;--redbg:#FEE2E2;--yellow:#78350F;--ybg:#FEF3C7;--white:#fff}
+  :root{--ink:#0E1A2B;--ink2:#1C2E45;--signal:#2563EB;--signal-s:#EAF1FF;--gold:#E8A33D;--gold-dk:#B9781F;--gold-s:#FDF3E2;--canvas:#EEF1F6;--surface:#FFFFFF;--num:'Space Grotesk',sans-serif;--shadow-sm:0 1px 2px rgba(14,26,43,.06);--shadow:0 4px 16px rgba(14,26,43,.08);--shadow-lg:0 12px 40px rgba(14,26,43,.14);--blue:#1E40AF;--blue2:#2563EB;--blue3:#DBEAFE;--blue4:#EFF6FF;--gray:#EEF1F6;--gray2:#F1F5F9;--border:#E4E9F0;--text:#0E1A2B;--text2:#5A6B82;--text3:#9AA7B8;--green:#15803D;--green2:#DCFCE7;--red:#B91C1C;--redbg:#FEE2E2;--yellow:#92670A;--ybg:#FEF3C7;--white:#fff}
   body{font-family:'DM Sans',sans-serif;background:var(--gray);color:var(--text);min-height:100vh;padding-bottom:60px}
-  .app-header{background:var(--blue);padding:16px 20px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between}
+  .app-header{background:var(--ink);padding:16px 20px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between}
   .app-header h1{font-size:18px;font-weight:700;color:#fff}
   .app-header p{font-size:11px;color:#BFDBFE;margin-top:1px}
   .home-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:8px;color:#fff;font-size:11px;padding:6px 10px;cursor:pointer;text-decoration:none;white-space:nowrap;font-family:'DM Sans',sans-serif}
   .panel{padding:16px}
-  .card{background:var(--white);border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card{background:var(--surface);border-radius:16px;padding:18px;margin-bottom:12px;border:1px solid var(--border);box-shadow:var(--shadow-sm)}
   .card-header{background:var(--blue4);border-bottom:1px solid var(--blue3);margin:-16px -16px 14px;padding:12px 16px;border-radius:12px 12px 0 0}
   .card-header h2{font-size:14px;font-weight:700;color:var(--blue)}
   .card-header p{font-size:11px;color:var(--text2);margin-top:2px}
@@ -29,7 +29,7 @@
   .field input,.field select,.field textarea{width:100%;font-family:'DM Sans',sans-serif;font-size:15px;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;background:var(--white);color:var(--text);appearance:none;-webkit-appearance:none;outline:none;transition:border-color .15s}
   .field input:focus,.field select:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .btn{width:100%;padding:12px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;border:none;border-radius:8px;cursor:pointer;transition:all .15s}
+  .btn{width:100%;padding:13px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;border:none;border-radius:12px;cursor:pointer;transition:transform .12s,filter .15s;-webkit-tap-highlight-color:transparent}.btn:active{transform:scale(.98)}
   .btn-primary{background:var(--blue2);color:white}
   .btn-primary:active{background:var(--blue);transform:scale(.98)}
   .btn-secondary{background:var(--white);border:1.5px solid var(--border);color:var(--text2)}

@@ -4,28 +4,28 @@
 <script src="gate.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="theme-color" content="#1E40AF">
+<meta name="theme-color" content="#0E1A2B">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="ContractorAI">
 <link rel="manifest" href="manifest.json">
 <title>Residential Estimator</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
   *{box-sizing:border-box;margin:0;padding:0}
-  :root{--blue:#1E40AF;--blue2:#2563EB;--blue3:#DBEAFE;--blue4:#EFF6FF;--gray:#F8FAFC;--gray2:#F1F5F9;--border:#E2E8F0;--text:#0F172A;--text2:#475569;--text3:#94A3B8;--green:#166534;--green2:#DCFCE7;--red:#7F1D1D;--redbg:#FEE2E2;--yellow:#78350F;--ybg:#FEF3C7;--white:#fff}
+  :root{--ink:#0E1A2B;--ink2:#1C2E45;--signal:#2563EB;--signal-s:#EAF1FF;--gold:#E8A33D;--gold-dk:#B9781F;--gold-s:#FDF3E2;--canvas:#EEF1F6;--surface:#FFFFFF;--num:'Space Grotesk',sans-serif;--shadow-sm:0 1px 2px rgba(14,26,43,.06);--shadow:0 4px 16px rgba(14,26,43,.08);--shadow-lg:0 12px 40px rgba(14,26,43,.14);--blue:#1E40AF;--blue2:#2563EB;--blue3:#DBEAFE;--blue4:#EFF6FF;--gray:#EEF1F6;--gray2:#F1F5F9;--border:#E4E9F0;--text:#0E1A2B;--text2:#5A6B82;--text3:#9AA7B8;--green:#15803D;--green2:#DCFCE7;--red:#B91C1C;--redbg:#FEE2E2;--yellow:#92670A;--ybg:#FEF3C7;--white:#fff}
   body{font-family:'DM Sans',sans-serif;background:var(--gray);color:var(--text);min-height:100vh;padding-bottom:40px}
-  .app-header{background:var(--blue);padding:16px 20px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between}
+  .app-header{background:var(--ink);padding:16px 20px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between}
   .app-header h1{font-size:18px;font-weight:700;color:#fff}
   .app-header p{font-size:11px;color:#BFDBFE;margin-top:1px}
   .home-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:8px;color:#fff;font-size:11px;padding:6px 10px;cursor:pointer;text-decoration:none;white-space:nowrap;font-family:'DM Sans',sans-serif}
   .steps-row{display:flex;gap:4px;padding:12px 16px;background:var(--white);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
   .steps-row::-webkit-scrollbar{display:none}
   .step-pill{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid var(--border);color:var(--text2);background:transparent;cursor:pointer;transition:all .2s;white-space:nowrap}
-  .step-pill.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .step-pill.active{background:var(--ink);color:#fff;border-color:var(--ink)}
   .step-pill.done{background:var(--green2);color:var(--green);border-color:var(--green)}
   .panel{display:none;padding:16px}.panel.active{display:block}
-  .card{background:var(--white);border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card{background:var(--surface);border-radius:16px;padding:18px;margin-bottom:12px;border:1px solid var(--border);box-shadow:var(--shadow-sm)}
   .card-header{background:var(--blue4);border-bottom:1px solid var(--blue3);margin:-16px -16px 14px;padding:12px 16px;border-radius:12px 12px 0 0}
   .card-header h2{font-size:14px;font-weight:700;color:var(--blue)}
   .card-header p{font-size:11px;color:var(--text2);margin-top:2px}
@@ -35,7 +35,7 @@
   .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
   .field textarea{resize:none;min-height:70px;line-height:1.5}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .btn{width:100%;padding:12px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;border:none;border-radius:8px;cursor:pointer;transition:all .15s}
+  .btn{width:100%;padding:13px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;border:none;border-radius:12px;cursor:pointer;transition:transform .12s,filter .15s;-webkit-tap-highlight-color:transparent}.btn:active{transform:scale(.98)}
   .btn-primary{background:var(--blue2);color:white}
   .btn-primary:active{background:var(--blue);transform:scale(.98)}
   .btn-secondary{background:var(--white);border:1.5px solid var(--border);color:var(--text2);margin-bottom:8px}
@@ -85,9 +85,9 @@
   .line-total{font-size:12px;font-weight:700;color:var(--text);white-space:nowrap}
   .totals-section{border-top:1px solid var(--border);padding-top:10px;margin-top:4px}
   .total-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:5px}
-  .grand-total{background:var(--blue);margin:10px -16px -16px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+  .grand-total{background:var(--ink);margin:10px -16px -16px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
   .grand-label{font-size:12px;color:#BFDBFE;font-weight:500}
-  .grand-amount{font-size:28px;font-weight:700;color:white}
+  .grand-amount{font-family:var(--num);font-size:28px;font-weight:700;color:var(--gold);letter-spacing:-.5px}
   .margin-badge{display:inline-flex;align-items:center;gap:5px;background:var(--green2);color:var(--green);font-size:11px;font-weight:600;padding:5px 10px;border-radius:20px;margin:12px 0 0}
   .save-badge{display:inline-flex;align-items:center;gap:5px;background:var(--blue3);color:var(--blue);font-size:11px;font-weight:600;padding:5px 10px;border-radius:20px;margin:6px 0 0}
   .risks-section{margin-top:12px}
@@ -182,6 +182,8 @@
       <button onclick="document.getElementById('restoreFile').click()" style="flex:1;padding:9px;background:var(--gray2);border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer">⬆ Restore prices</button>
       <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="doRestore(this.files[0])">
     </div>
+    <button onclick="document.getElementById('importFile').click()" style="width:100%;padding:10px;background:var(--blue4);border:1.5px solid var(--blue);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;color:var(--blue);cursor:pointer;margin-bottom:14px">📊 Import prices from spreadsheet (CSV)</button>
+    <input type="file" id="importFile" accept=".csv" style="display:none" onchange="doImport(this.files[0])">
     <div id="backupMsg" style="display:none;font-size:11px;padding:7px 10px;border-radius:6px;margin-bottom:12px"></div>
     <div class="mat-section">
       <div class="mat-section-title">Labor Rates</div>
@@ -448,6 +450,56 @@ function doRestore(file){
     updateMaterials();
     showBackupMsg(`✓ Restored ${count} prices.`,true);
   });
+}
+
+const RES_FIELD_MAP=[
+  {id:'laborer',names:['laborer','general labor','labor','laborer rate']},
+  {id:'carpenter',names:['carpenter','carpentry']},
+  {id:'electrician',names:['electrician','electrical']},
+  {id:'plumber',names:['plumber','plumbing']},
+  {id:'equipment',names:['equipment','equipment rental']},
+  {id:'permits',names:['permits','permit','permit fees']},
+  {id:'disposal',names:['disposal','debris','dumpster','debris removal']},
+  {id:'flooring',names:['flooring','lvt','hardwood','flooring material','kitchen flooring','basement flooring']},
+  {id:'drywall',names:['drywall','moisture-resistant drywall','sheetrock']},
+  {id:'paint',names:['paint','interior paint','premium paint']},
+  {id:'framing',names:['framing','framing lumber','lumber']},
+  {id:'framing_lbr',names:['pressure treated framing','pt framing']},
+  {id:'insulation',names:['insulation','batt insulation','wall insulation']},
+  {id:'insul_foam',names:['spray foam insulation','spray foam']},
+  {id:'lighting',names:['lighting','light fixtures','recessed lighting']},
+  {id:'cabinets',names:['kitchen cabinets','cabinets']},
+  {id:'countertop',names:['countertop','granite','quartz','countertops']},
+  {id:'appliances',names:['appliances','appliance allowance']},
+  {id:'faucet',names:['faucet','faucet & fixtures','fixtures']},
+  {id:'doors',names:['interior doors','doors','pre-hung doors']},
+  {id:'door_gar',names:['entry door','exterior door']},
+  {id:'baseboards',names:['baseboards','base trim']},
+  {id:'tile',names:['tile','ceramic tile','porcelain tile']},
+  {id:'hardware',names:['hardware','fasteners','hardware / fasteners']},
+  {id:'caulk',names:['caulk','paintable caulk','exterior caulk']},
+  {id:'ceiling',names:['ceiling','drop ceiling tiles','ceiling tiles']},
+  {id:'decking',names:['decking','decking boards','composite decking']},
+  {id:'housewrap',names:['house wrap','housewrap']},
+  {id:'hvac_mini',names:['mini-split hvac','mini split','hvac']},
+  {id:'insulated',names:['insulated backer board','backer board']},
+  {id:'adhesive',names:['flooring adhesive','adhesive']},
+  {id:'footings',names:['concrete footings','footings']}
+];
+function doImport(file){
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const result=importPricesFromCSV(e.target.result,RES_FIELD_MAP,'res_');
+      updateMaterials();
+      let msg=`✓ Imported ${result.matched.length} prices.`;
+      if(result.unmatched.length)msg+=` ${result.unmatched.length} rows didn't match and were skipped.`;
+      showBackupMsg(msg,true);
+    }catch(err){showBackupMsg('Import failed: '+err.message,false)}
+  };
+  reader.onerror=()=>showBackupMsg('Could not read file',false);
+  reader.readAsText(file);
 }
 
 // ── PDF + Payment Schedule ──

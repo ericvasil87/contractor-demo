@@ -4,8 +4,8 @@
   "description": "AI-powered contractor estimating app",
   "start_url": "/contractor-demo/",
   "display": "standalone",
-  "background_color": "#1E40AF",
-  "theme_color": "#1E40AF",
+  "background_color": "#0E1A2B",
+  "theme_color": "#0E1A2B",
   "orientation": "portrait",
   "icons": [
     {
